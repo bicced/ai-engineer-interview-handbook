@@ -158,4 +158,4 @@ Exact identifiers are a classic weakness of pure vector search. Hybrid (semantic
 
 ---
 
-[◂ Back to the handbook](../README.md) · [▸ Practice this interactively](https://YOUR-DOMAIN/track/fde)
+[◂ Back to the handbook](../README.md) · [▸ Practice this interactively](https://deployprep.com/track/fde)
