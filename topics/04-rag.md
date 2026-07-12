@@ -19,11 +19,14 @@ _~6 min_
 
 > 🎯 **RAG vs fine-tuning (classic question)** — **RAG** = give the model new **knowledge/facts** at runtime (cheap to update, attributable). **Fine-tuning** = change the model's **behavior/format/style** or teach a narrow skill. Need current facts? RAG. Need a consistent tone or output format the model won't follow via prompting? Fine-tune. Often you use **both**.
 
+> 💡 **2026 nuance: retrieval moved up the stack** — The single-pass 'chunk → embed → top-k → stuff the prompt' pipeline is no longer the automatic default. In agentic systems, **retrieval is a tool the model calls** when it decides it needs something (**agentic RAG**) — and for navigable corpora like codebases, an agent driving plain **grep/keyword search** famously beat the vector index (Claude Code dropped its embeddings for exactly this). The senior answer names the split: classic RAG still wins for **large, fresh, permissioned** corpora; agentic search wins for structured/navigable ones. Asking **'do we even need a vector DB here?'** is a hire signal.
+
 **◆ Lock it in**
 
 - RAG injects **relevant data at query time** so the model answers from your sources.
 - It fixes **freshness, private knowledge, and hallucination/attribution** together.
 - RAG adds knowledge; **fine-tuning changes behavior** — different tools, often combined.
+- 2026: **retrieval is a tool in the agent loop**; classic RAG for big/fresh/permissioned corpora, agentic search for navigable ones.
 
 > 🧠 **Feynman drill** — A customer wants a bot that answers from their 10,000-page internal wiki, always with citations. RAG or fine-tune? Why?
 

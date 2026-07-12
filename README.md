@@ -14,7 +14,7 @@
 
 ## Why this exists
 
-The **Applied AI Engineer** and **Forward Deployed Engineer** roles are new, they pay **$300K–$1M+**, and postings grew **~5× in a year** — yet there's almost no structured interview prep for them. Generic "software engineer interview questions" don't cover **large language models (LLMs), retrieval-augmented generation (RAG), AI agents, evaluations, or the forward-deployed craft**. This handbook does — as a free, open, continuously-updated reference.
+The **Applied AI Engineer** and **Forward Deployed Engineer** roles are new, they pay **$300K–$1M+**, and postings grew **~8× in a year** — yet there's almost no structured interview prep for them. Generic "software engineer interview questions" don't cover **large language models (LLMs), retrieval-augmented generation (RAG), AI agents, evaluations, or the forward-deployed craft**. This handbook does — as a free, open, continuously-updated reference.
 
 It's the companion to **[DEPLOYED](https://deployprep.com)**, a free gamified trainer with spaced-repetition flashcards, retrieval checks, and timed **mock interviews**.
 
@@ -32,6 +32,7 @@ It's the companion to **[DEPLOYED](https://deployprep.com)**, a free gamified tr
 | 08 | [**Fine-tuning interview questions**](./topics/08-finetune.md) | SFT, LoRA/QLoRA, RLHF vs DPO, distillation, when to fine-tune |
 | 09 | [**AI system design interview questions**](./topics/09-sysdesign.md) | a framework + worked end-to-end designs |
 | 10 | [**FDE behavioral & customer-facing**](./topics/10-fde.md) | ambiguity, STAR, customer scenarios, the forward-deployed craft |
+| 11 | [**Round-by-round playbook**](./topics/11-rounds.md) | the decomposition round, take-homes & video walkthroughs, AI-assisted & debugging rounds, the discovery-call simulation |
 
 **Plus:** 📋 [**Interview Question Bank**](./interview-questions.md) (real-style questions + strong answers) · ⚡ [**Rapid-Fire Flashcards**](./flashcards.md).
 

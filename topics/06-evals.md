@@ -38,6 +38,45 @@ Non-determinism + open-ended outputs mean manual spot-checks miss regressions. E
 
 ---
 
+## Error analysis: where evals come from
+_~7 min_
+
+The 2026 eval bar moved past 'have a golden set.' The method interviewers now expect (codified by Hamel Husain & Shreya Shankar, and echoed in frontier-lab guidance on agent evals) starts with **error analysis**: you **discover** what to measure by reading real failures — you don't invent metrics in a vacuum.
+
+1. **Collect real traces** (production logs, or realistic pilot traffic) — ~100 to start.
+2. **Open coding**: read each trace and write a free-form note on the **first upstream failure** only (don't log downstream symptoms of the same root cause).
+3. **Axial coding**: cluster the notes into a small **failure taxonomy** ('retrieved wrong policy,' 'ignored refund limit,' 'wrong tone') and **count** them — now you know what actually breaks, and how often.
+4. **Build one binary pass/fail judge per failure mode**, validated against human labels. Fix the biggest bucket, re-run, repeat.
+
+- **Trace-to-dataset**: every production failure becomes a permanent regression test. A great eval suite is **harvested from traffic, not authored up front**.
+- **Guardrails ≠ evals**: guardrails are synchronous, deterministic, inline blocking (PII filters, schema checks); evals are async quality **measurement** feeding the improvement loop. Naming this distinction reads senior.
+- As capabilities stabilize, migrate saturated **capability evals** into the always-run **regression suite** that gates deploys.
+
+> 🎯 **The eval-harness design round** — 2026 design rounds increasingly make the **measurement system** the deliverable — 'how would you evaluate this agent?' can be the entire hour. The winning shape, said as a loop: **error analysis → failure taxonomy → binary judges validated against human labels → CI regression gate → online monitoring → production traces feed the dataset**.
+
+> ⚠️ **Don't write evals for imagined failures** — Pre-authoring dozens of evaluators before you've read traces is a named anti-pattern — you'll measure what you imagined instead of what breaks. Start with a small smoke set, then grow the real suite from observed failures. Teams that ship well spend **the majority of their applied-AI time** in this loop.
+
+**◆ Lock it in**
+
+- Evals are **discovered, not invented**: real traces → open coding (first upstream failure) → counted failure taxonomy → binary judges.
+- Validate each judge with **TPR/TNR on held-out human labels**; prefer **binary** checks per failure mode.
+- Wire the loop: **trace → dataset → CI gate → online monitoring**. Guardrails block inline; evals measure async.
+
+> 🧠 **Feynman drill** — Walk through running error analysis on a support bot's last 100 conversations — what do you write down per trace, and what artifact do you end up with?
+
+**Retrieval check**
+
+**Q: Your team wants to 'add evals' to a new LLM feature. Per 2026 best practice, what's the first step?**
+
+<details><summary>Show answer</summary>
+
+**✓ Read ~100 real traces, note the first upstream failure in each, and cluster them into a counted failure taxonomy.**
+
+Error analysis comes first: real traces → open coding → taxonomy. Judges are then built **per observed failure mode** and validated against human labels. Imagined-failure evaluators and self-ratings measure the wrong things; public benchmarks don't reflect your task.
+</details>
+
+---
+
 ## Building an eval set & choosing metrics
 _~7 min_
 
@@ -84,7 +123,9 @@ _~6 min_
 For subjective or open-ended output (summaries, chat helpfulness), use **LLM-as-judge**: a strong model scores outputs against a rubric. Scalable and surprisingly good — with caveats.
 
 - Give the judge a **clear rubric** and ask for a score + justification; consider pairwise comparison (A vs B) over absolute scores.
+- Prefer **binary pass/fail checks per failure mode** over 1–10 scores — humans and models both judge binaries far more consistently; decompose 'quality' into independent checks.
 - Beware judge **biases**: position bias (favoring first/second), length bias (favoring longer), self-preference. Randomize order; validate the judge against human labels on a sample.
+- **Validate the judge like a classifier**: label ~100 examples, hold out a test split, and report **TPR and TNR** (>90% target) — raw '% agreement' hides failure on the rare class.
 
 #### Offline vs online evaluation
 

@@ -96,7 +96,7 @@ _~6 min_
 
 - Simple trigger: "Think step by step, then give the final answer."
 - For clean output, have it reason in a hidden/section then emit a final structured answer — or use a model with built-in reasoning.
-- **Reasoning models** (e.g. o-series, extended-thinking modes) do this internally — you often **don't** need manual CoT and shouldn't force verbosity.
+- **Reasoning models** (built-in 'thinking', now standard on frontier APIs and usually dialed with a **reasoning-effort** setting) do this internally — telling one to 'think step by step' is obsolete and just adds cost. Save manual CoT for non-reasoning models.
 
 > ⚠️ **Don't parse the reasoning** — If you show your reasoning and your final answer together, **extract the final answer explicitly** (e.g. after a marker or in a JSON field). Don't regex the whole blob. And more reasoning = more tokens = more cost/latency — use it where it pays off.
 
@@ -128,11 +128,11 @@ _~6 min_
 
 Production systems need **machine-parseable** output. Free-form text is a liability. Techniques, best to okay:
 
-- **Structured output / JSON mode / tool schemas**: constrain the model to a schema at the API level so it **can't** emit invalid JSON. Prefer this when available.
-- **Ask for JSON + validate + retry**: instruct the schema, then parse; on failure, send the error back and retry once.
-- **Prefill / response prefix**: start the assistant's turn with { to force JSON, or with a known prefix to steer format.
+- **Structured outputs (constrained decoding)**: every major provider now guarantees schema-valid output at the API level — the model **can't** emit invalid JSON. This is the default; retry-on-parse-failure loops are legacy.
+- **Ask for JSON + validate + retry**: the fallback when structured outputs aren't available — instruct the schema, parse, and on failure send the error back and retry once.
+- **Prefill / response prefix**: legacy technique for models without structured outputs — start the assistant's turn with { to force JSON.
 
-> 💡 **Always validate** — Treat model output like untrusted user input: parse it, validate against a schema (e.g. Pydantic/zod), and have a fallback path. A pipeline that assumes the model 'just returns JSON' will break in production.
+> 💡 **Schema compliance is solved; semantic correctness is not** — That's the 2026 framing to say out loud. Constrained decoding killed malformed-JSON bugs, but the model can still fill a perfectly valid schema with **wrong values, insane numbers, or hallucinated IDs**. Validation now guards **meaning** (Pydantic/zod + business-rule checks), not syntax.
 
 #### Iterating on prompts like an engineer
 
@@ -142,7 +142,7 @@ Production systems need **machine-parseable** output. Free-form text is a liabil
 
 **◆ Lock it in**
 
-- Prefer **structured output / schema-constrained** generation; else JSON + validate + retry.
+- Use **structured outputs** (schema-guaranteed at the API); validate for **meaning** — semantic correctness isn't solved.
 - Treat model output as untrusted: **parse, validate, fallback**.
 - Engineer prompts: version control, change one variable, test against an eval + regression set.
 

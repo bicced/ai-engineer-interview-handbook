@@ -87,6 +87,8 @@ The **context window** is the maximum number of tokens the model can attend to a
 
 > ⚠️ **Long context ≠ RAG replacement** — "Just stuff all the docs in the 1M window" fails on cost, latency, and the lost-in-the-middle effect at scale. Retrieval that sends only the **relevant** chunks is usually cheaper, faster, and more accurate. Know when each wins.
 
+> 💡 **Name the discipline: context engineering** — Managing what's in the window is now a named craft — **context engineering** — and prompt engineering is framed as a subset of it. The four verbs: **Write, Select, Compress, Isolate**. Vocabulary interviewers recognize: **attention budget** (every token spends it), **context rot** (quality degrades as the window fills — measured across models), **compaction** (summarize/prune stale turns), **just-in-time retrieval** (fetch when needed, don't preload), **progressive disclosure** (load tool defs/docs on demand). Using this vocabulary instantly dates your knowledge to 2026.
+
 **◆ Lock it in**
 
 - Context window = working memory; **everything** (system + history + docs + query + answer) shares it.

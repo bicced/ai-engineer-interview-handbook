@@ -1,6 +1,6 @@
 # Rapid-Fire Flashcards
 
-> 56 spaced-repetition cards. Cover the answer, recall, then check. [◂ Back](./README.md)
+> 70 spaced-repetition cards. Cover the answer, recall, then check. [◂ Back](./README.md)
 
 
 ## The Role: Applied AI & Forward Deployed Engineer
@@ -27,6 +27,12 @@ Research improves the **model itself**. You **apply** an existing model — retr
 <details><summary>Answer</summary>
 
 1) **Evals** — 'how do you know it works?' (golden set, LLM-as-judge, regression gates). 2) **Start with the customer, not the tech** — clarify before architecting.
+</details>
+
+**Why did the FDE role explode? (great 'why FDE' material)**
+<details><summary>Answer</summary>
+
+Most enterprise AI pilots fail on **integration, not models** — someone must close the last mile. FDE = **product discovery**: 'build the gravel road' with one customer; product paves the highway. Postings grew ~8× YoY.
 </details>
 
 
@@ -84,6 +90,12 @@ Each token makes a **Query**; it's matched against every token's **Key** to get 
 <details><summary>Answer</summary>
 
 MoE routes each token to a few **expert** sub-networks, so total parameters are huge but only a fraction (**active params**) run per token — big capacity at lower inference compute. Tradeoff: routing complexity and memory to hold all experts.
+</details>
+
+**What is context engineering?**
+<details><summary>Answer</summary>
+
+The umbrella discipline (prompting is a subset): curate everything in the window via **Write / Select / Compress / Isolate**. Vocab: **attention budget, context rot, compaction, just-in-time retrieval, progressive disclosure**.
 </details>
 
 
@@ -158,6 +170,12 @@ Takes a broad candidate set (e.g. top-50) and **re-scores** each against the que
 Increasingly send pages straight to a **vision-capable model** (skip brittle OCR-then-text), with a strict schema at temp 0, validation, and human review of low-confidence extractions. This is **multimodal** document AI.
 </details>
 
+**Is classic RAG dead in 2026?**
+<details><summary>Answer</summary>
+
+No — it **moved up the stack**. Retrieval is now a **tool inside the agent loop** (agentic RAG); agent-driven grep/keyword search wins on navigable corpora like code (Claude Code dropped its vector index); classic pipelines still win for **large, fresh, permissioned** corpora.
+</details>
+
 
 ## Agents & Tool Use
 
@@ -230,6 +248,18 @@ Strong model scores outputs against a rubric. Biases: **position** (first/second
 Tracing/observability: **LangSmith, Langfuse, Braintrust, Arize Phoenix, Weave**, OpenTelemetry GenAI. Track token usage, latency P50/P95/P99, RAG hit rate, cost, and quality online. Naming these is cheap interview signal.
 </details>
 
+**What is error analysis (open/axial coding)?**
+<details><summary>Answer</summary>
+
+Read ~100 **real traces**, note the **first upstream failure** per trace (open coding), cluster into a **counted failure taxonomy** (axial coding), then build one **binary judge per failure mode**. Evals are discovered, not invented.
+</details>
+
+**How do you validate an LLM judge in 2026?**
+<details><summary>Answer</summary>
+
+Like a classifier: ~100+ human-labeled examples, held-out split, report **TPR and TNR** (>90% target) — not raw % agreement. Prefer **binary pass/fail per failure mode** over 1–10 scores.
+</details>
+
 
 ## Production: Latency, Cost, Reliability & Safety
 
@@ -281,6 +311,12 @@ Cache the processed **KV state of a stable prompt prefix** (system prompt, docs)
 Willison's frame: exfiltration risk needs all three — **access to private data + exposure to untrusted content + ability to communicate externally**. Cut any one leg (e.g. no outbound action without human approval) and the attack can't complete.
 </details>
 
+**OWASP Agentic Top 10 & Meta's Rule of Two?**
+<details><summary>Answer</summary>
+
+OWASP's 2026 list for **agentic apps**: goal hijack, tool misuse, memory/context poisoning, rogue agents… **Rule of Two**: an unsupervised agent holds at most **two** of {private data, untrusted content, external comms}.
+</details>
+
 
 ## Fine-Tuning & Model Adaptation
 
@@ -318,6 +354,12 @@ Parameter-efficient fine-tuning: train small **adapter** matrices instead of all
 <details><summary>Answer</summary>
 
 LoRA **adapters over a frozen 4-bit quantized base** model. Slashes memory so you can fine-tune a ~7B model on a single small GPU. PEFT's efficiency, one step further.
+</details>
+
+**Where does fine-tuning actually happen in 2026?**
+<details><summary>Answer</summary>
+
+**Open-weight models** (LoRA SFT, and RFT/agent-RL on hosted platforms). Self-serve FT of frontier proprietary models is disappearing (OpenAI sunsetting; Anthropic never offered it). **Context-engineer first**; fine-tune for form/latency/cost — never facts.
 </details>
 
 
@@ -366,5 +408,50 @@ Set honest expectations (LLMs are **probabilistic**), show your eval/guardrail p
 <details><summary>Answer</summary>
 
 **Clarify scope/success → map stakeholders → identify data/constraints → propose approach with tradeoffs → surface failure modes.** Never jump straight to a solution.
+</details>
+
+
+## Round-by-Round Playbook
+
+**The decomposition-round drill?**
+<details><summary>Answer</summary>
+
+**Clarify/scope → users & stakeholders → data & constraints → decompose by risk×value → walking skeleton → failure modes + measurement.** Narrate constantly — silence reads as stuck.
+</details>
+
+**What is a 'walking skeleton'?**
+<details><summary>Answer</summary>
+
+The **thinnest end-to-end slice** that proves value in week one — ship that first, then iterate. The decomposition round's favorite proposal shape.
+</details>
+
+**What do take-home graders actually score?**
+<details><summary>Answer</summary>
+
+**It runs** · an **eval harness** (start with evals — its absence is the red flag) · production hygiene (retries, logging, no hardcoded keys) · a tradeoffs README with cost/latency notes · explicitly stated assumptions.
+</details>
+
+**Structure of a take-home video walkthrough?**
+<details><summary>Answer</summary>
+
+≤5 min: **demo the working thing first → architecture (why this shape) → one conscious tradeoff → your evals and what they showed → what you'd do next.** It's a customer-demo proxy — energy up.
+</details>
+
+**How do you behave in an AI-assisted coding round?**
+<details><summary>Answer</summary>
+
+Prompt with **intent**, **verify aloud** (run/test everything), visibly **reject bad suggestions**, own the architecture. Assume the AI transcript is reviewed — the graded skill is **judging** code, not producing it.
+</details>
+
+**Method for the debugging-an-unfamiliar-codebase round?**
+<details><summary>Answer</summary>
+
+Read the intended-behavior spec → trace **one request end-to-end** → diff intent vs behavior → instrument at the seam → fix and **run to prove it**. Beware planted red herrings — fix behavior, not style.
+</details>
+
+**The #1 rule of the discovery-call simulation?**
+<details><summary>Answer</summary>
+
+**Discover, don't pitch.** Map today's workflow, past (failed) attempts, quantified pain, immovable constraints, the people, and a success number — then summarize and propose a next step. Architecture waits.
 </details>
 

@@ -21,10 +21,19 @@ The unifying idea: you are the person who turns a general-purpose model into **s
 
 > 💡 **The one-liner** — Research engineers make the model smarter. **You make the model useful.** Interviewers are testing whether you can take a fuzzy business problem and a fallible model and reliably close the gap between them.
 
+#### Where the role came from — and why it exploded
+
+- **Palantir** invented it: **Deltas** (embedded engineers who ship against one customer's mess) paired with **Echoes** (domain strategists who find the problem worth solving). Palantir's own framing: product engineering = 'one capability, many customers'; FDE = **'one customer, many capabilities.'**
+- The best one-liner in circulation (Bob McGrew, ex-Palantir/OpenAI): FDEs **'build the rough gravel road'** where the product needs to go; product engineers pave it into a highway for the next ten customers. FDE is **product discovery**, not consulting.
+- Why every AI company now hires it: the great majority of enterprise AI pilots fail on **integration, not model quality** — someone has to close the last mile inside the customer's messy reality. That's you.
+
+> 🎯 **Great 'Why FDE?' material** — Recruiter screens filter hard on motivation, and generic answers get downgraded. Use the history: "I want the **product-discovery** version of engineering — embed with one customer, ship the gravel road fast, and feed what I learn back into the product." That's the role described in the industry's own language.
+
 **◆ Lock it in**
 
 - AAE/FDE = ship products **on top of** foundation models, not train them.
 - The role blends **SWE + applied LLM craft + customer/product sense**.
+- FDE = **product discovery**: ship the 'gravel road' with one customer; product paves it for the rest.
 - FDE leans customer-facing and on-site; AAE leans product engineering — same core skills.
 
 > 🧠 **Feynman drill** — In 20 seconds, explain to a non-technical friend how a Forward Deployed Engineer is different from a data scientist or an ML researcher.
@@ -59,6 +68,8 @@ Interviewers often probe whether you understand the boundaries of the role. Know
 - Research = improve the model. ML Eng = train bespoke models. **You = apply pretrained models to ship product.**
 - FDE **owns delivery** — more hands-on than a solutions architect or sales engineer.
 - Your differentiator vs a normal SWE: fluency in **non-determinism, evals, and LLM failure modes**.
+
+> 🧠 **Feynman drill** — In four sentences, place the AAE/FDE role against its neighbors: research engineer, ML engineer, solutions architect, product SWE.
 
 **Retrieval check**
 
@@ -127,13 +138,17 @@ The loop varies by company but almost always has these stages. Prepare for each:
 5. **Take-home or live build** (common at startups) — build a small working AI app; judged on it working, code quality, and evals.
 6. **Behavioral / customer-facing** — ambiguity, dealing with an unhappy stakeholder, prioritization, communicating to non-engineers. FDE roles weight this heavily.
 
-> 💡 **Company flavors (2025–26)** — **Palantir** (invented the role): signature **Decomposition** round ("design a tech to help low-vision elderly cook"), a Re-engineering round (fix a bug in 250+ lines), API-integration task; AI tools banned. **OpenAI**: ~5-hr take-home on their APIs + a **recorded video walkthrough**, then "how do you know your system works?", temperature/top-p tradeoffs, RAG vs fine-tune; AI tools allowed if you narrate. **Anthropic** ("Applied AI"): deliverables like **MCP servers, sub-agents, eval suites**; take-home done **without** Claude; HIPAA/VPC RAG design; "tell me about a deployment that failed." **Cohere**: **no leetcode** — a "the system is failing, debug it" round. **Sierra/Glean/Decagon**: build-a-working-agent take-homes, ship-fast, full-stack. This course covers all of it.
+> 💡 **Company flavors (2026)** — **Palantir** (invented the role): signature **Decomposition** round ("design a tech to help low-vision elderly cook"), a **Re-engineering** round (find real bugs — and red herrings — in 500+ lines), a **Learning** round (build with an unfamiliar library on the spot); AI tools banned. **OpenAI**: ~5-hr take-home on their APIs + a **recorded video walkthrough**, a defense screen (rate limits, retries, "how do you know it works?"), then an open-ended customer solution design. **Anthropic** ("Applied AI"): practical coding (one problem, escalating levels), a take-home from a **fictional customer brief** (no AI unless explicitly permitted), a **discovery-call simulation**, and a design round centered on **eval harnesses** — posting language names **MCP servers, sub-agents, and agent skills** as deliverables. **Sierra**: 'AI-native interview' — a **2-hr build using any AI tools** (graded on how you drive them), plus a no-AI **debugging round** on an unfamiliar agent codebase and a presentation round. **Glean/Harvey** still run LeetCode-style screens; **Decagon/ElevenLabs/LangChain** run practical builds + customer case studies. The [Round-by-Round Playbook](./11-rounds.md) drills each of these.
+
+> ⚠️ **The 2026 twist — AI in the room** — Loops split into **AI-assisted rounds** (Sierra, Meta, Canva, Ramp — you're graded on how well you **drive and verify** AI output, and your chat transcript may be reviewed) and hardened **anti-AI rounds** (proctored screens, live debugging, Palantir bans AI outright). Never assume: **ask what's allowed before every round**, and prep both modes.
 
 **◆ Lock it in**
 
 - Coding rounds are **practical** (API calls, RAG, data wrangling) — not abstract leetcode.
 - Expect an **applied-LLM deep dive** and an **AI system design** round.
 - FDE loops weight **behavioral / customer-facing** heavily — prepare STAR stories.
+
+> 🧠 **Feynman drill** — Recite the six standard stages of an Applied AI / FDE loop from memory, with one sentence on how you'd prep each.
 
 **Retrieval check**
 

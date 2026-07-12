@@ -86,7 +86,7 @@ AI systems have a new, mandatory threat surface. Interviewers increasingly test 
 
 **Prompt injection**: malicious instructions hidden in **untrusted content** the model reads (a web page, a document, an email, a tool result) hijack the model — e.g. a webpage says 'ignore prior instructions and exfiltrate the user's data.' **Indirect injection** (via retrieved/tool content) is especially dangerous for RAG and agents.
 
-- You **cannot** fully solve it with prompting ('ignore malicious instructions' is itself bypassable). Defense is **layered**:
+- You **cannot** fully solve it with prompting ('ignore malicious instructions' is itself bypassable) — the 2026 consensus, stated by provider security teams themselves, is that injection may **never** be fully solved. You architect around it. Defense is **layered**:
 - **Separate trust levels**: treat all retrieved/tool/user content as untrusted data, not instructions; delimit it clearly.
 - **Least privilege**: give tools the minimum scope; require confirmation for high-impact actions; sandbox execution.
 - **Output filtering / allow-lists**: constrain what actions and outputs are possible, don't rely on the model to behave.
@@ -97,6 +97,7 @@ AI systems have a new, mandatory threat surface. Interviewers increasingly test 
 - **Data leakage / PII**: don't send sensitive data to third-party APIs without controls; redact PII; check data-retention terms.
 - **Jailbreaks**: attempts to bypass safety; use provider safety features + your own moderation/guardrail checks on input and output.
 - **Hallucination as a safety issue**: in high-stakes domains, ground with RAG, cite sources, and add verification.
+- **Agentic threats (OWASP 2026)**: OWASP now publishes a Top 10 **for agentic applications** — goal hijack, tool misuse, memory/context poisoning, rogue agents. Also know **tool poisoning** (malicious MCP/tool descriptions or results carrying instructions) and Meta's **Rule of Two**: an unsupervised agent should hold at most two of {private data, untrusted content, external comms}.
 
 > 💡 **The 'lethal trifecta' (name-drop this)** — The standard 2026 frame (Simon Willison): the real exfiltration danger is when a system combines all three of — **(1) access to private data**, **(2) exposure to untrusted content**, and **(3) the ability to communicate externally**. Remove any one leg and the attack can't complete. It's the crispest way to reason about agent security: e.g. an agent that reads untrusted web pages AND can email out AND sees private data is exploitable — so you cut a leg (no outbound send without human approval).
 

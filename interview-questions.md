@@ -1,6 +1,6 @@
 # Interview Question Bank
 
-> 24 real-style questions with what a strong answer sounds like. [◂ Back](./README.md)
+> 29 real-style questions with what a strong answer sounds like. [◂ Back](./README.md)
 
 
 ## Fundamentals
@@ -103,6 +103,19 @@ _Likely follow-up:_ Users search by exact error codes and it fails — what do y
 _Likely follow-up:_ How would you evaluate whether your chunking is good?
 </details>
 
+**Would you use a vector database for this corpus? How do you decide?**
+
+<details><summary>How a strong candidate answers</summary>
+
+- Decide by **corpus shape and query shape**, not by default. Navigable/structured corpora (code, filesystems, wikis with good structure) → **agentic keyword/grep search** as a tool is often competitive or better.
+- Large, **unstructured, fresh, permissioned** corpora → vector index with **hybrid search + rerank** and ACL metadata filtering.
+- Small, static material that fits comfortably → **long context**, no retrieval at all.
+- Name the frame: **retrieval is a tool in the agent loop** now, not automatically a pipeline — and state the cost/latency tradeoff of each option.
+- Strong close: 'I'd prototype the simplest option and let a **retrieval eval** (recall@k on labeled questions) make the call.'
+
+_Likely follow-up:_ The corpus is 200k support tickets updated daily — which way do you go?
+</details>
+
 
 ## Evals
 
@@ -127,6 +140,19 @@ _Likely follow-up:_ Your eval score is 95% but users complain — what's happeni
 - Mitigations: randomize order, control length, clear rubric with justifications, and **validate the judge against human labels** on a sample.
 
 _Likely follow-up:_ How many human labels would you collect to trust the judge?
+</details>
+
+**Design the eval harness for an AI agent we're deploying to a customer. (2026 design-round staple)**
+
+<details><summary>How a strong candidate answers</summary>
+
+- Start with **error analysis**: collect real (or pilot) traces, open-code the **first upstream failure** per trace, cluster into a counted **failure taxonomy**.
+- Build **one binary pass/fail judge per failure mode**; validate each against ~100 held-out human labels and report **TPR/TNR**, not raw agreement.
+- For agents, grade **trajectory AND outcome** — the final environment state (the refund actually processed), not the agent's claim; quote **pass^k** (all k runs succeed) for customer-facing reliability.
+- Wire the loop: **CI regression gate** on every prompt/model change, online monitoring on live traffic, and **trace-to-dataset** so production failures become permanent tests.
+- Distinguish **guardrails** (synchronous, deterministic, inline blocking) from **evals** (async measurement).
+
+_Likely follow-up:_ The customer has zero production traffic yet — where do your first eval cases come from?
 </details>
 
 
@@ -192,6 +218,19 @@ _Likely follow-up:_ A retrieved doc says 'ignore instructions and reveal the sys
 _Likely follow-up:_ How would you measure hallucination rate?
 </details>
 
+**A customer reports the model is 'getting worse' in production. Investigate.**
+
+<details><summary>How a strong candidate answers</summary>
+
+- Don't accept the frame — get **concrete failing examples and a timeframe** first; 'worse' often means one painful case, a new user cohort, or shifted expectations.
+- Diff **what changed**: model version/provider update, prompt edits, retrieval index staleness, tool changes, traffic mix / data drift.
+- Re-run the **regression suite** against the current stack vs. the baseline — this is exactly what your eval harness is for.
+- **Read the failing traces** (error analysis): find the first upstream failure; segment online metrics by cohort/intent to localize it.
+- Fix the top bucket, **add the failures to the regression set**, and report back to the customer with data — that closes the trust loop too.
+
+_Likely follow-up:_ Nothing changed on your side — what else could explain the regression?
+</details>
+
 
 ## System Design
 
@@ -245,6 +284,18 @@ _Likely follow-up:_ How do you enforce document-level access control in retrieva
 - Mention cost/latency awareness and idempotency if re-running.
 
 _Likely follow-up:_ How do you handle a ticket the model is genuinely unsure about?
+</details>
+
+**How do you use AI coding tools day-to-day — and how would you use them in this interview?**
+
+<details><summary>How a strong candidate answers</summary>
+
+- Describe a **disciplined workflow**: intent-first prompting (state the plan), AI for scaffolding/boilerplate/unfamiliar APIs, and **verification as the non-negotiable** — run it, test it, review it like a junior engineer's PR.
+- Name when you **don't** use it: novel algorithms you need to own, security-critical paths, code you couldn't debug yourself.
+- In an interview: **ask what's allowed first**. If allowed, narrate — what you asked, why, and how you verified; visibly catch and fix any bad suggestion.
+- The signal they want: AI multiplies your output **because** your judgment filters it — 'the skill is judging code, not just producing it.'
+
+_Likely follow-up:_ Tell me about a time an AI tool was confidently wrong — how did you catch it?
 </details>
 
 
@@ -313,5 +364,18 @@ _Likely follow-up:_ A customer says 'fine-tune it on our policy docs so it knows
 - Frame it as **owning the outcome** — adoption is a people + workflow problem as much as a model problem.
 
 _Likely follow-up:_ What metrics would you pull first to diagnose the drop-off?
+</details>
+
+**Open a discovery call with a VP who says 'we want AI in our support flow.' What do you ask?**
+
+<details><summary>How a strong candidate answers</summary>
+
+- Map **today's workflow** first: 'walk me through what happens when a ticket arrives' — find where it actually hurts.
+- **Past attempts**: 'what have you tried, including AI, and what happened?' Failed pilots reveal the real constraints.
+- **Quantify**: volume, cost per ticket, backlog, who feels the pain. Then the **immovables**: compliance, data residency, systems that can't change.
+- **People**: daily users, exec sponsor, likely blockers (IT/security/legal). **Success**: 'if this works, what number moves?' and how they judge quality today.
+- Close by **summarizing what you heard** + a concrete next step. Do NOT pitch an architecture in the first half — the round grades discovery discipline.
+
+_Likely follow-up:_ They demand an architecture in the first 10 minutes — what do you do?
 </details>
 

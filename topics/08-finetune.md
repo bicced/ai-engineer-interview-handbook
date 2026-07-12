@@ -54,6 +54,8 @@ _~7 min_
 
 > ⚠️ **Costs & catastrophic forgetting** — Fine-tuning has real costs: data curation, training, hosting the custom model, re-tuning when the base updates, and **catastrophic forgetting** (the model gets worse at general tasks). Weigh this against staying on a prompted frontier model.
 
+> 💡 **Fine-tuning in 2026 — the reality check** — Self-serve fine-tuning of **frontier proprietary models** is disappearing (OpenAI is sunsetting its self-serve fine-tuning; Anthropic never offered it for current models). In practice, 2026 fine-tuning means **open-weight models** — LoRA SFT and increasingly **RFT / agent-RL** on hosted platforms. And the ladder grew a rung zero: **context-engineer first** — a frontier model with well-managed context clears most quality bars at zero training cost. Fine-tune for **form, latency, and unit cost**; never for facts.
+
 **◆ Lock it in**
 
 - **SFT** = train on ideal completions; **LoRA/PEFT** = cheap adapters (modern default); **DPO/RLHF** = preference/behavior tuning.
