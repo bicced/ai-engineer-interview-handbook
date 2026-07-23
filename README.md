@@ -8,7 +8,7 @@
 <img alt="PRs welcome" src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg">
 </p>
 
-**★ Star this repo** if it helps — it's how others find it. **[Practice these interactively, free →](https://deployprep.com)** · **[Contribute a real interview question →](./CONTRIBUTING.md)**
+**★ Star this repo** if it helps — it's how others find it. **[Practice these interactively, free →](https://deployprep.vercel.app)** · **[Contribute a real interview question →](./CONTRIBUTING.md)**
 
 ---
 
@@ -16,7 +16,7 @@
 
 The **Applied AI Engineer** and **Forward Deployed Engineer** roles are new, they pay **$300K–$1M+**, and postings grew **~8× in a year** — yet there's almost no structured interview prep for them. Generic "software engineer interview questions" don't cover **large language models (LLMs), retrieval-augmented generation (RAG), AI agents, evaluations, or the forward-deployed craft**. This handbook does — as a free, open, continuously-updated reference.
 
-It's the companion to **[DEPLOYED](https://deployprep.com)**, a free gamified trainer with spaced-repetition flashcards, retrieval checks, and timed **mock interviews**.
+It's the companion to **[DEPLOYED](https://deployprep.vercel.app)**, a free gamified trainer with spaced-repetition flashcards, retrieval checks, and timed **mock interviews**.
 
 ## 📚 Topics — AI engineer interview questions by area
 
@@ -41,7 +41,7 @@ It's the companion to **[DEPLOYED](https://deployprep.com)**, a free gamified tr
 1. **Skim a topic**, then use its **retrieval checks** — recall the answer *before* revealing it. Producing the answer is the learning.
 2. **Drill flashcards** across topics (interleaving beats single-topic cramming).
 3. **Simulate** — go through the question bank out loud, on a timer, then self-grade.
-4. **Practice interactively** in the free trainer → **[deployprep.com](https://deployprep.com)**.
+4. **Practice interactively** in the free trainer → **[website](https://deployprep.vercel.app)**.
 
 ## The two things every AI lab actually tests
 
