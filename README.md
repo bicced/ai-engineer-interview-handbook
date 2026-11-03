@@ -2,6 +2,8 @@
 
 **Last updated: November 3, 2026** · [What's new](#whats-new-november-2026) · [Changelog](./CHANGELOG.md) · [Sources](./SOURCES.md)
 
+📄 **[Download the full handbook as a PDF](https://github.com/bicced/ai-engineer-interview-handbook/releases/latest/download/ai-engineer-fde-interview-handbook.pdf)** (113 pages, every answer expanded)
+
 A free, open-source guide to **Applied AI Engineer** and **Forward Deployed Engineer (FDE)** interviews. It covers the LLM, RAG, agent, eval and system-design questions you'll be asked, and how each company's loop actually runs.
 
 <p>

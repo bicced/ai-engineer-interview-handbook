@@ -22,6 +22,7 @@ These interview loops change every quarter. Each entry lists what changed and wh
   - Agent Skills
   - fine-tuning in late 2026
 - **Files:** [SOURCES.md](./SOURCES.md) (dated sources), [CITATION.cff](./CITATION.cff), and the full CC BY 4.0 legal text in [LICENSE](./LICENSE).
+- **PDF edition** attached to the [v2026.11 release](https://github.com/bicced/ai-engineer-interview-handbook/releases/tag/v2026.11).
 
 ### Changed
 - **LLM foundations**
