@@ -16,6 +16,7 @@ The technical skills get you to the loop; the **FDE mindset** gets you the offer
 - **Extreme ownership**: you own the outcome, not just your code. You chase down the blocker, talk to the customer, and don't wait to be told.
 - **Customer empathy**: you obsess over the user's actual problem, not the shiny tech. You can say 'AI is the wrong tool here' when it is.
 - **Pragmatism**: the simplest thing that works, shipped, beats the elegant thing in a branch.
+- **Leave them capable**: the job ends with the customer able to run, evaluate and extend what you built — runbooks, the eval suite, training their team. Microsoft's FDE leadership calls this **capability transfer**.
 
 > 🎯 **Show, don't claim** — Don't say 'I'm comfortable with ambiguity.' **Prove it with a story**: a time the spec was vague, what assumptions you made, how you got to a working thing fast, and the outcome. Stories beat adjectives.
 
@@ -149,4 +150,4 @@ A concrete STAR story with a quantified result demonstrates the exact FDE traits
 
 ---
 
-[◂ Back to the handbook](../README.md) · [▸ Practice this interactively](https://deployprep.com/track/fde)
+[◂ Back to the handbook](../README.md) · [▸ Practice this interactively](https://deployprep.vercel.app/track/fde)

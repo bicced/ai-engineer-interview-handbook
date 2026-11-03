@@ -1,6 +1,6 @@
 # Interview Question Bank
 
-> 29 real-style questions with what a strong answer sounds like. [◂ Back](./README.md)
+> 35 real-style questions with what a strong answer sounds like. [◂ Back](./README.md)
 
 
 ## Fundamentals
@@ -61,6 +61,7 @@ _Likely follow-up:_ Give an example where trusting raw output caused a bug.
 - **Customer assistant**: moderate temp (~0.5–0.7) for natural, varied, friendly responses; generous max_tokens; guardrails on top.
 - **Code-gen / extraction**: **low temp (~0–0.2)** and/or low top_p for precise, consistent, syntactically valid output; tighter max_tokens; structured output where possible.
 - Add: even temp 0 isn't perfectly deterministic — validate anyway.
+- **2026 caveat**: many frontier reasoning models now **reject or ignore** temperature/top_p (GPT-6 Astra dropped them; Claude Haiku 5.5 errors). There, the levers are **reasoning effort, structured outputs and max output tokens** (leaving room for thinking). The classic knobs still apply to open-weight and older models — saying both shows you're current.
 
 _Likely follow-up:_ Why is it usually a bad idea to crank both temperature and top_p at once?
 </details>
@@ -74,6 +75,18 @@ _Likely follow-up:_ Why is it usually a bad idea to crank both temperature and t
 - Implications you can cite: it's why long contexts get expensive/slow, why **prompt/prefix caching** helps, and why techniques like paged attention (vLLM) and KV-cache quantization matter.
 
 _Likely follow-up:_ How does prefix caching build on the KV cache to cut cost?
+</details>
+
+**How do you decide which reasoning effort to use?**
+
+<details><summary>How a strong candidate answers</summary>
+
+- Reasoning effort trades **thinking tokens (billed as output) and latency** for accuracy on hard steps.
+- Set it **per route**: low for classification/extraction/routing, higher for multi-step planning, coding or costly decisions.
+- Decide with **evals**: run two or three levels, compare quality vs cost vs p95 latency, pick the knee of the curve.
+- Note: some models can't disable thinking — low effort is the latency lever; fixed thinking budgets are legacy.
+
+_Likely follow-up:_ Your agent's planning step is great at high effort but too slow. Options?
 </details>
 
 
@@ -181,6 +194,31 @@ _Likely follow-up:_ Give a concrete task that genuinely needs an agent.
 _Likely follow-up:_ The model calls a delete_all_records tool — how do you prevent disaster?
 </details>
 
+**How would you secure a coding agent that runs in a customer's CI and reads GitHub issues?**
+
+<details><summary>How a strong candidate answers</summary>
+
+- Treat **issue text, repo files, AGENTS.md/CLAUDE.md, hooks, git config and MCP configs as untrusted** — 2026 incidents turned each into an attack path to CI secrets.
+- **No long-lived secrets** in the agent's environment; short-lived, scoped credentials; secrets never in context.
+- Sandbox execution; restrict egress to what's needed (allow-lists can still leak — constrain what it may fetch).
+- Validate the **normalized command** the shell will run, not the model's text; human review before merge or deploy.
+- Pin and verify plugins/MCP servers; log and monitor every tool call, including mid-turn and compaction events.
+
+_Likely follow-up:_ The team wants the agent to auto-merge dependency bumps. What guardrails make that acceptable?
+</details>
+
+**What is an Agent Skill, and when would you build one for a customer?**
+
+<details><summary>How a strong candidate answers</summary>
+
+- A **skill** is a folder with SKILL.md (name, description, instructions) plus optional scripts/resources, loaded on demand — **progressive disclosure** keeps context small.
+- Build one when a customer has a **repeatable procedure** the agent must follow their way: claims intake, SQL conventions, release checklists.
+- Pair it with MCP tools: the skill says **how**; the tools **do** it — with permissions enforced in the tools.
+- Version skills like code, test them with evals, and treat third-party skills as untrusted.
+
+_Likely follow-up:_ How is a skill different from just putting the instructions in the system prompt?
+</details>
+
 
 ## Production
 
@@ -231,6 +269,32 @@ _Likely follow-up:_ How would you measure hallucination rate?
 _Likely follow-up:_ Nothing changed on your side — what else could explain the regression?
 </details>
 
+**A customer wants to build on a vendor's managed agent platform (e.g. OpenAI's Agents API or Anthropic's Managed Agents). What do you check before committing?**
+
+<details><summary>How a strong candidate answers</summary>
+
+- **Data handling first**: is it eligible for zero data retention / HIPAA / their residency rules? Several 2026 managed harnesses keep server-side state and aren't.
+- **Portability**: keep tools as MCP servers and prompts/evals in your repo so you could move to an open SDK (Agents SDK, Claude Agent SDK, LangGraph) in their VPC.
+- **Operations**: sandbox egress rules, credential scoping, approval policies, spend budgets, trace export to their observability stack.
+- **Cost model**: sessions, sandbox time and tokens — model it against expected volume.
+- Close with an **exit plan** and an eval suite that runs on either path.
+
+_Likely follow-up:_ Their security team says no data may leave their VPC. Now what?
+</details>
+
+**Your provider just announced the model your production system runs on retires in 60 days. Walk me through the migration.**
+
+<details><summary>How a strong candidate answers</summary>
+
+- Inventory every call site and pinned version; note features the new model changes (sampling params, prefill, thinking behavior, tool-choice rules).
+- Run the **full eval suite** on candidate replacements — quality, cost, p95 latency, refusal rate — at a few effort levels.
+- Fix regressions with prompt/schema changes; re-validate LLM judges if the judge model changes too.
+- Shadow or canary traffic, compare online metrics, keep a rollback path until the deadline.
+- Tell the customer early, with numbers — a scheduled retirement is a reliability event, not a surprise.
+
+_Likely follow-up:_ Quality drops 3 points on the new model but cost falls 40%. Ship it?
+</details>
+
 
 ## System Design
 
@@ -251,7 +315,7 @@ _Likely follow-up:_ How do you make sure users only see docs they're allowed to?
 <details><summary>How a strong candidate answers</summary>
 
 - Clarify: fields needed, accuracy bar, throughput, human-review budget, cost.
-- Pipeline: **parse PDFs** (OCR if scanned) → chunk if needed → LLM extraction with a **strict schema** (structured output) at **temperature 0** → **validate** against schema, retry on failure.
+- Pipeline: **parse PDFs** (OCR or a vision model if scanned) → chunk if needed → LLM extraction with a **strict schema** (structured outputs) at **low reasoning effort** → **validate** fields and business rules (structured outputs don't enforce numeric bounds), retry or escalate on failure.
 - Quality: build an eval set with gold labels; measure **field-level accuracy**; route low-confidence extractions to **human review**.
 - Scale/cost: batch + parallelize, use the **cheapest model that passes the eval**, cache, monitor. Consider fine-tuning/distillation for the hot path if volume is high.
 
@@ -278,7 +342,7 @@ _Likely follow-up:_ How do you enforce document-level access control in retrieva
 
 <details><summary>How a strong candidate answers</summary>
 
-- Write a clear prompt: fixed **category list**, **JSON schema**, an **'other'** fallback, temperature ~0, a couple **few-shot examples**.
+- Write a clear prompt: fixed **category list**, **JSON schema** via structured outputs, an **'other'** fallback, a couple **few-shot examples**; low effort (and temperature ~0 if the model still exposes it).
 - Robust code: **validate JSON** against a schema (retry/repair on failure), handle API errors with **retries + backoff**, **batch/parallelize** with rate-limit handling, log failures.
 - Don't forget **evaluation**: hand-label ~30–50 tickets to measure accuracy; iterate prompt against that set.
 - Mention cost/latency awareness and idempotency if re-running.
@@ -349,6 +413,18 @@ _Likely follow-up:_ When have you decided NOT to use an LLM for something?
 - Punchline: **'fine-tuning is for form, not facts.'** Volatile knowledge → RAG. Often combine (fine-tune format + RAG facts).
 
 _Likely follow-up:_ A customer says 'fine-tune it on our policy docs so it knows them' — what do you say?
+</details>
+
+**When would you still fine-tune in late 2026 — and on what?**
+
+<details><summary>How a strong candidate answers</summary>
+
+- After context engineering, few-shot and RAG plateau — for **form, latency, unit cost or a narrow agentic skill**, never for facts.
+- Mostly on **open-weight models**: LoRA SFT, or **RL against a grader** (tests, rubrics, task completion) on managed platforms.
+- Hosted options are vendor-dependent: OpenAI is closing self-serve fine-tuning, Google offers Gemini SFT and RL tuning.
+- Budget for evals, hosting, re-tuning when the base model changes, and a distillation path from an open teacher.
+
+_Likely follow-up:_ The customer's data can't leave their cloud. How does that change your plan?
 </details>
 
 

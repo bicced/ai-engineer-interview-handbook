@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use or adapt this handbook, please cite it as below."
+title: "AI Engineer & Forward Deployed Engineer Interview Handbook"
+abstract: "A free, open-source guide to Applied AI Engineer and Forward Deployed Engineer (FDE) interviews: LLM, RAG, AI agents and MCP, evals, production, fine-tuning, AI system design, and company-by-company interview loops."
+type: dataset
+authors:
+  - name: "DEPLOYED"
+version: "2026.11"
+date-released: "2026-11-03"
+license: CC-BY-4.0
+repository-code: "https://github.com/bicced/ai-engineer-interview-handbook"
+url: "https://github.com/bicced/ai-engineer-interview-handbook"
+keywords:
+  - forward deployed engineer
+  - applied AI engineer
+  - AI engineer interview questions
+  - LLM interview questions
+  - RAG
+  - AI agents
+  - MCP
+  - LLM evaluation
+  - AI system design

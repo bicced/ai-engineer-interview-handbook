@@ -96,7 +96,7 @@ _~6 min_
 
 - Simple trigger: "Think step by step, then give the final answer."
 - For clean output, have it reason in a hidden/section then emit a final structured answer — or use a model with built-in reasoning.
-- **Reasoning models** (built-in 'thinking', now standard on frontier APIs and usually dialed with a **reasoning-effort** setting) do this internally — telling one to 'think step by step' is obsolete and just adds cost. Save manual CoT for non-reasoning models.
+- **Reasoning models** (built-in 'thinking' — now every frontier model, dialed with an **effort** setting) do this internally — telling one to 'think step by step' is obsolete and just adds cost. Save manual CoT for small or non-reasoning models.
 
 > ⚠️ **Don't parse the reasoning** — If you show your reasoning and your final answer together, **extract the final answer explicitly** (e.g. after a marker or in a JSON field). Don't regex the whole blob. And more reasoning = more tokens = more cost/latency — use it where it pays off.
 
@@ -128,11 +128,13 @@ _~6 min_
 
 Production systems need **machine-parseable** output. Free-form text is a liability. Techniques, best to okay:
 
-- **Structured outputs (constrained decoding)**: every major provider now guarantees schema-valid output at the API level — the model **can't** emit invalid JSON. This is the default; retry-on-parse-failure loops are legacy.
+- **Structured outputs (constrained decoding)**: every major provider now guarantees schema-valid output at the API level — the model **can't** emit invalid JSON. This is the default; retry-on-parse-failure loops are legacy. Read the fine print: refusals and max-token truncation are exceptions, and some schema keywords (numeric bounds, minimum lengths) aren't enforced — validate them yourself.
 - **Ask for JSON + validate + retry**: the fallback when structured outputs aren't available — instruct the schema, parse, and on failure send the error back and retry once.
-- **Prefill / response prefix**: legacy technique for models without structured outputs — start the assistant's turn with { to force JSON.
+- **Prefill / forced tool choice**: legacy tricks — start the assistant turn with { or force a specific tool to get JSON. The newest models increasingly **reject both** (they return an error); use structured outputs instead.
 
 > 💡 **Schema compliance is solved; semantic correctness is not** — That's the 2026 framing to say out loud. Constrained decoding killed malformed-JSON bugs, but the model can still fill a perfectly valid schema with **wrong values, insane numbers, or hallucinated IDs**. Validation now guards **meaning** (Pydantic/zod + business-rule checks), not syntax.
+
+> 💡 **Classification has purpose-built endpoints now** — For label / score / yes-no questions, providers now ship dedicated endpoints that return **calibrated probabilities** instead of free text (e.g. OpenAI's Decisions API, GA Oct 2026), and eval tools run small **classifier judges**. For high-volume classification, ask whether one of these — or a small fine-tuned classifier — beats prompting a chat model.
 
 #### Iterating on prompts like an engineer
 
@@ -161,4 +163,4 @@ Schema-constrained generation is strongest; when unavailable, validate against a
 
 ---
 
-[◂ Back to the handbook](../README.md) · [▸ Practice this interactively](https://deployprep.com/track/fde)
+[◂ Back to the handbook](../README.md) · [▸ Practice this interactively](https://deployprep.vercel.app/track/fde)

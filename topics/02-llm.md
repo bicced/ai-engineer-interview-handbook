@@ -79,20 +79,20 @@ High cosine similarity ≈ close in meaning-space, i.e. semantically similar —
 ## Context windows & why they rule your design
 _~6 min_
 
-The **context window** is the maximum number of tokens the model can attend to at once — its working memory. Everything must fit: system prompt + conversation history + retrieved documents + the user's message + room for the response. Modern models range from ~8K to **200K–1M+** tokens.
+The **context window** is the maximum number of tokens the model can attend to at once — its working memory. Everything must fit: system prompt + conversation history + retrieved documents + the user's message + room for the response (and, on reasoning models, the thinking tokens). In late 2026 **~1M tokens is the default** on frontier models (Claude 5.5 family, GPT-6, Gemini 4) and on leading open-weight models — but bigger windows didn't repeal the tradeoffs below.
 
-- The model has **no memory** between calls. Each API call is stateless — you resend the whole context every time. "Memory" in chat apps is you re-sending history.
-- Bigger context ≠ free. More tokens = **more cost and higher latency**, and quality can degrade.
+- The **model** has no memory between calls — every response is computed from the tokens in the window. Many APIs now keep **server-side conversation state** for you (OpenAI Conversations, Gemini's Interactions API, Anthropic message threads), but that's **storage, not memory**: the full context is still processed (and billed, minus cache discounts) each turn, and stored state has **data-retention** implications.
+- Bigger context ≠ free. More tokens = **more cost and higher latency**, and quality can degrade. Some providers add a **long-context surcharge** too (OpenAI doubles input price above 272K tokens).
 - **Lost in the middle**: models attend best to the **start and end** of a long context; facts buried in the middle get missed. Put critical instructions/data at the edges.
 
 > ⚠️ **Long context ≠ RAG replacement** — "Just stuff all the docs in the 1M window" fails on cost, latency, and the lost-in-the-middle effect at scale. Retrieval that sends only the **relevant** chunks is usually cheaper, faster, and more accurate. Know when each wins.
 
-> 💡 **Name the discipline: context engineering** — Managing what's in the window is now a named craft — **context engineering** — and prompt engineering is framed as a subset of it. The four verbs: **Write, Select, Compress, Isolate**. Vocabulary interviewers recognize: **attention budget** (every token spends it), **context rot** (quality degrades as the window fills — measured across models), **compaction** (summarize/prune stale turns), **just-in-time retrieval** (fetch when needed, don't preload), **progressive disclosure** (load tool defs/docs on demand). Using this vocabulary instantly dates your knowledge to 2026.
+> 💡 **Name the discipline: context engineering** — Managing what's in the window is now a named craft — **context engineering** — and prompt engineering is framed as a subset of it. The four verbs: **Write, Select, Compress, Isolate**. Vocabulary interviewers recognize: **attention budget** (every token spends it), **context rot** (quality degrades as the window fills — measured across models), **compaction** (summarize/prune stale turns), **just-in-time retrieval** (fetch when needed, don't preload), **progressive disclosure** (load tool defs/docs on demand). Using this vocabulary instantly dates your knowledge to 2026. In 2026 parts of it became **API features** — server-side **compaction**, cache-preserving tool changes — so know both the concept and the managed version.
 
 **◆ Lock it in**
 
 - Context window = working memory; **everything** (system + history + docs + query + answer) shares it.
-- APIs are **stateless** — you resend history each call; that's what "memory" is.
+- The **model** is stateless; server-side conversation state is **storage** — the whole context is still processed and billed each turn.
 - Watch **lost-in-the-middle**: put key instructions/data at the start or end.
 
 > 🧠 **Feynman drill** — A colleague says 'we have a 1M-token model, so we don't need retrieval anymore.' Give two reasons they're wrong.
@@ -110,49 +110,60 @@ The lost-in-the-middle effect means edge positions get the most reliable attenti
 
 ---
 
-## Temperature, sampling & determinism
+## Sampling, determinism & the knobs that disappeared
 _~6 min_
 
-The model outputs a probability distribution; **sampling parameters** decide how you pick from it.
+The model outputs a probability distribution over the next token; **sampling** decides how you pick from it. You must know the classic knobs — and that on 2026's frontier reasoning models, most of them are gone.
 
-- **Temperature** (range is provider-dependent — OpenAI 0–2, Anthropic 0–1): scales randomness. **Low (~0–0.3)** = focused, deterministic-ish, best for extraction/classification/code. **High (~0.8+)** = creative, varied, best for brainstorming/writing.
-- **Top-p (nucleus)**: sample only from the smallest set of tokens whose cumulative probability ≥ p. Another way to control diversity.
-- **Max tokens**: caps the response length (and cost).
+- **Temperature**: scales randomness. **Low (~0–0.3)** = focused, best for extraction/classification/code. **High (~0.8+)** = varied, best for brainstorming. The range is provider-dependent (historically OpenAI 0–2, Anthropic 0–1).
+- **Top-p (nucleus)**: sample only from the smallest set of tokens whose cumulative probability ≥ p. Tune temperature **or** top-p, not both.
+- **Max output tokens**: caps length and cost — on reasoning models it must leave room for the thinking tokens too.
 - **Stop sequences**: strings that force generation to halt.
 
-> 💡 **Determinism reality check** — Even at temperature 0, LLMs are **not perfectly deterministic** in production (floating-point, batching, model updates). Never write code that assumes byte-identical outputs. Design for **validation and retries**, not exact reproducibility.
+> ⚠️ **2026 reality: the knobs are disappearing** — Frontier reasoning models increasingly **reject or ignore sampling parameters**: Claude Haiku 5.5 returns an error if you send them, GPT-6 Astra dropped them, and Gemini deprecated them (Gemini 4 ignores them). They still matter on many open-weight and older models — but 'just set temperature 0' is no longer a universal answer.
 
-> 🎯 **Interview answer** — "For a data-extraction task I'd use temperature 0 to minimize variance, ask for structured JSON, validate it against a schema, and retry on failure." That sentence signals production maturity.
+#### How you control variance now
+
+- **Structured outputs**: constrain the shape at the API so format can't drift.
+- **Tight prompts + examples**: fixed label sets, explicit fallbacks, few-shot demonstrations.
+- **Reasoning effort**: the dial that replaced most sampling tuning — set per request (see 'Reasoning models, effort & test-time compute').
+- **Validate + retry**: schema and business-rule checks on every output; retry or escalate on failure.
+- **Sample k and aggregate** when it pays: majority vote / self-consistency for high-stakes labels — and measure run-to-run variance in your evals.
+
+> 💡 **Determinism reality check** — Even where temperature 0 exists, LLMs are **not perfectly deterministic** in production (floating-point, batching, model updates). Never write code that assumes byte-identical outputs. Design for **validation and retries**, not exact reproducibility.
+
+> 🎯 **Interview answer** — "For extraction I'd use structured outputs, validate fields against the schema and business rules, and retry or route to a human on failure. If the model exposes temperature I'd set it low — but on most 2026 frontier models the real levers are the schema, the prompt, and reasoning effort." That shows you know both the concept and the current APIs.
 
 **◆ Lock it in**
 
-- **Temperature low** for precision tasks (extraction, code); **high** for creative tasks.
-- Top-p, max tokens, and stop sequences are your other sampling controls.
-- Temperature 0 is **not** a guarantee of identical output — design for validation + retries.
+- Know the classic knobs — **temperature, top-p, max tokens, stop sequences**: still interview vocabulary, still live on open-weight models.
+- Frontier reasoning models increasingly **reject or ignore** sampling params; variance control moved to **structured outputs, prompts, reasoning effort, validation**.
+- Temperature 0 was never a determinism guarantee — design for **validation + retries**.
 
-> 🧠 **Feynman drill** — You're extracting invoice fields into JSON. What sampling settings do you choose and why?
+> 🧠 **Feynman drill** — You're extracting invoice fields into JSON on a 2026 frontier model that rejects the temperature parameter. How do you get consistent output?
 
 **Retrieval check**
 
-**Q: You need consistent JSON extraction from documents. Best setting?**
+**Q: You need consistent JSON extraction, and the model you're on rejects sampling parameters. Best approach?**
 
 <details><summary>Show answer</summary>
 
-**✓ Temperature ~0, request structured output, validate against a schema, retry on failure.**
+**✓ Use structured outputs, validate against the schema and business rules, and retry or escalate on failure.**
 
-Extraction wants low variance: temperature ~0, structured output, and schema validation with retries — because even temp 0 isn't perfectly deterministic.
+Format consistency comes from schema-constrained output; correctness from validation with a retry/escalation path. Byte-identical outputs aren't guaranteed even at temperature 0, and prompting for determinism does nothing.
 </details>
 
 ---
 
-## How models are made: pretraining, SFT, RLHF
+## How models are made: pretraining, SFT, RLHF & RLVR
 _~6 min_
 
-You won't train frontier models, but you must understand the **three stages** to reason about behavior, refusals, and fine-tuning.
+You won't train frontier models, but you must understand **how they're made** to reason about behavior, refusals, reasoning, and fine-tuning.
 
 1. **Pretraining** — predict the next token over a huge web-scale corpus. Produces a **base model**: knowledgeable but not helpful/aligned; it just autocompletes.
 2. **Supervised fine-tuning (SFT / instruction tuning)** — train on curated (prompt → ideal response) pairs so the model **follows instructions** and answers rather than autocompletes.
 3. **RLHF / preference tuning (RLHF, DPO, RLAIF)** — humans (or AI) rank responses; the model is optimized toward preferred behavior. This produces the helpful, harmless, honest **chat model** you actually call.
+4. **RL with verifiable rewards (RLVR)** — the 2025–26 frontier: reinforcement learning on tasks whose outcome can be **checked** (a math answer, tests passing, a tool-use task completed). This is what produced **reasoning models** that think before answering, and it's increasingly how labs — and some applied teams — teach agentic skills.
 
 > 💡 **Why this matters for you** — Refusals, tone, and 'safety' behavior come from the alignment stage — you steer them with prompting, not retraining. **Knowledge** comes from pretraining (frozen at a cutoff date) — you add fresh/private knowledge with **RAG or tools**, not fine-tuning.
 
@@ -160,7 +171,7 @@ You won't train frontier models, but you must understand the **three stages** to
 
 **◆ Lock it in**
 
-- Three stages: **pretraining** (knowledge) → **SFT** (instruction-following) → **RLHF/DPO** (alignment).
+- Stages: **pretraining** (knowledge) → **SFT** (instruction-following) → **RLHF/DPO** (alignment) → **RLVR** (reasoning & agentic skill).
 - The base model just autocompletes; alignment makes it a helpful assistant.
 - Add **fresh/private knowledge** via RAG/tools, not fine-tuning; steer behavior via prompting.
 
@@ -179,4 +190,48 @@ Private/fresh knowledge isn't in pretraining. Retrieval or tools supply the fact
 
 ---
 
-[◂ Back to the handbook](../README.md) · [▸ Practice this interactively](https://deployprep.com/track/fde)
+## Reasoning models, effort & test-time compute
+_~7 min_
+
+Every 2026 frontier model is a **reasoning model**: before answering it generates **thinking tokens** — a private scratchpad — and spending more of them buys accuracy on hard problems. This is **test-time compute**: trading latency and tokens at inference for quality, instead of reaching for a bigger model.
+
+#### Reasoning became a parameter, not a model
+
+- The separate reasoning models (OpenAI's o-series) were **retired in 2026**; reasoning is now a setting on general models.
+- You dial it with an **effort** level (low → medium → high → max on Claude and GPT-6; `thinking_level` on Gemini). Fixed token budgets (`budget_tokens`, numeric thinking budgets) are legacy — Gemini 4 rejects them.
+- Some models can't switch thinking off at all (e.g. Claude Opus 5.5) — **low effort** is your latency lever, not 'disable reasoning'.
+- Thinking tokens are **billed as output** and add latency before the first visible token.
+
+#### Choosing effort like an engineer
+
+- **Low**: classification, extraction, routing, simple rewrites — latency-sensitive, high-volume paths.
+- **Medium / high**: multi-step analysis, coding, agentic tool use where a wrong step is costly.
+- **Max**: rare, hard, high-value problems — and only when your evals show it beats high.
+- Decide with **evals, not vibes**: run the eval set at two effort levels and compare quality vs cost vs p95 latency.
+
+> ⚠️ **Don't pay for thinking twice** — Telling a reasoning model to 'think step by step' and then parsing its verbose output is double-spending. Let it reason internally and constrain only the **final** answer with structured output.
+
+> 🎯 **Say this** — "I treat reasoning effort as a per-route cost dial: low for the high-volume classification path, high for the agent's planning step — and I pick each level from an eval run that compares quality, cost and p95 latency."
+
+**◆ Lock it in**
+
+- Reasoning models spend **thinking tokens** (test-time compute) to buy accuracy — billed as output, adding latency.
+- Reasoning is now an **effort parameter** on general models; the o-series and fixed thinking budgets are legacy.
+- Pick effort **per route, from evals**: low for high-volume simple paths, high for costly multi-step decisions.
+
+> 🧠 **Feynman drill** — Explain test-time compute to a PM, and how you'd decide which effort level each feature uses.
+
+**Retrieval check**
+
+**Q: A high-volume ticket-classification route on a reasoning model is too slow. Best first move?**
+
+<details><summary>Show answer</summary>
+
+**✓ Drop that route to low reasoning effort, confirm on the eval set that accuracy holds, and compare p95 latency and cost.**
+
+Effort is the latency/cost dial on 2026 reasoning models: lower it for simple high-volume work and verify with evals that quality holds. Fixed thinking budgets are legacy (some models reject them), CoT prompting adds tokens, and more effort means more latency.
+</details>
+
+---
+
+[◂ Back to the handbook](../README.md) · [▸ Practice this interactively](https://deployprep.vercel.app/track/fde)

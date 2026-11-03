@@ -1,61 +1,106 @@
-# AI Engineer Interview Questions & Handbook — Applied AI / Forward Deployed Engineer (2026)
+# AI Engineer & Forward Deployed Engineer Interview Handbook (2026)
 
-> The free, open-source guide to **AI engineer interview questions and answers** for the newest and highest-paid roles in tech — **Applied AI Engineer** and **Forward Deployed Engineer (FDE)** — at **OpenAI, Anthropic, Palantir**, and top AI startups. Covers **LLM, RAG, AI agents, evals, prompt engineering, fine-tuning, and AI system design** interview questions, built on the real 2026 interview bar.
+**Last updated: November 3, 2026** · [What's new](#whats-new-november-2026) · [Changelog](./CHANGELOG.md) · [Sources](./SOURCES.md)
+
+A free, open-source guide to **Applied AI Engineer** and **Forward Deployed Engineer (FDE)** interviews. It covers the LLM, RAG, agent, eval and system-design questions you'll be asked, and how each company's loop actually runs.
 
 <p>
-<a href="#"><img alt="Stars" src="https://img.shields.io/github/stars/bicced/ai-engineer-interview-handbook?style=social"></a>
-<img alt="License: CC BY 4.0" src="https://img.shields.io/badge/License-CC%20BY%204.0-blue.svg">
-<img alt="PRs welcome" src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg">
+<a href="https://github.com/bicced/ai-engineer-interview-handbook/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/bicced/ai-engineer-interview-handbook?style=social"></a>
+<a href="./LICENSE"><img alt="License: CC BY 4.0" src="https://img.shields.io/badge/License-CC%20BY%204.0-blue.svg"></a>
+<a href="./CONTRIBUTING.md"><img alt="PRs welcome" src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg"></a>
+<img alt="Last updated" src="https://img.shields.io/badge/updated-Nov%202026-orange.svg">
 </p>
 
-**★ Star this repo** if it helps — it's how others find it. **[Practice these interactively, free →](https://deployprep.vercel.app)** · **[Contribute a real interview question →](./CONTRIBUTING.md)**
+**[Practice it interactively, free →](https://deployprep.vercel.app)** · **[Add a question you were actually asked →](./CONTRIBUTING.md)**
 
 ---
 
-## Why this exists
+## What is a Forward Deployed Engineer?
 
-The **Applied AI Engineer** and **Forward Deployed Engineer** roles are new, they pay **$300K–$1M+**, and postings grew **~8× in a year** — yet there's almost no structured interview prep for them. Generic "software engineer interview questions" don't cover **large language models (LLMs), retrieval-augmented generation (RAG), AI agents, evaluations, or the forward-deployed craft**. This handbook does — as a free, open, continuously-updated reference.
+A Forward Deployed Engineer embeds with customers to build and ship production AI systems.
 
-It's the companion to **[DEPLOYED](https://deployprep.vercel.app)**, a free gamified trainer with spaced-repetition flashcards, retrieval checks, and timed **mock interviews**.
+Palantir created the role. In 2026 it spread to AI labs, cloud providers and consultancies. OpenAI's version of the title is **AI Deployment Engineer**. An **Applied AI Engineer** does similar work with less time on-site. Both loops test the same things: applied-LLM depth, system design, coding with AI tools, and judgment in front of customers.
 
-## 📚 Topics — AI engineer interview questions by area
+## The FDE market in numbers (late 2026)
+
+| Metric | Value | Source |
+|---|---|---|
+| US FDE job postings, Jan–Sep 2026 | **7,300+** (vs ~1,200 in all of 2025; under 200 in 2023) | Lightcast, via CNBC (Oct 15, 2026) |
+| FDE roles open at one time | ~1,260 across ~555 companies | Plank (Oct 18, 2026) |
+| Largest posters | Deloitte 872 · Accenture 688 · Google 499 · KPMG 447 | Lightcast, via CNBC (Oct 15, 2026) |
+| Median advertised FDE salary | **~$195K**, up ~40% vs 2023 | Lightcast (Oct 2026) |
+| Anthropic US FDE posted base salary | $280K–$320K | Anthropic job postings (2026) |
+| Employers allowing AI in technical interviews | 46% allow · 20% case by case · 34% ban | CoderPad survey (2026) |
+
+> "AI fluency is a requirement for all SWE jobs." — Google spokesperson, quoted by Business Insider (Oct 20, 2026)
+
+Full citations are in [SOURCES.md](./SOURCES.md). Claims based on candidate reports are labeled **reported** throughout.
+
+## 📚 Topics
 
 | # | Topic | Covers |
 |---|---|---|
-| 01 | [**Applied AI & Forward Deployed Engineer** — the role](./topics/01-role.md) | what AAE/FDE is, vs ML/research, the interview loop per company |
-| 02 | [**LLM interview questions**](./topics/02-llm.md) | tokens, embeddings, context windows, temperature, transformers, training |
-| 03 | [**Prompt engineering interview questions**](./topics/03-prompt.md) | few-shot, chain-of-thought, structured output, robust prompting |
-| 04 | [**RAG interview questions**](./topics/04-rag.md) | chunking, embeddings, vector search, hybrid + rerank, RAG evaluation |
-| 05 | [**AI agents & tool use interview questions**](./topics/05-agents.md) | function calling, ReAct, MCP, multi-agent, when NOT to use an agent |
-| 06 | [**LLM evaluation (evals) interview questions**](./topics/06-evals.md) | eval sets, metrics, LLM-as-judge, offline vs online |
-| 07 | [**LLM production interview questions**](./topics/07-prod.md) | cost, latency, caching, reliability, prompt injection, security |
-| 08 | [**Fine-tuning interview questions**](./topics/08-finetune.md) | SFT, LoRA/QLoRA, RLHF vs DPO, distillation, when to fine-tune |
-| 09 | [**AI system design interview questions**](./topics/09-sysdesign.md) | a framework + worked end-to-end designs |
-| 10 | [**FDE behavioral & customer-facing**](./topics/10-fde.md) | ambiguity, STAR, customer scenarios, the forward-deployed craft |
-| 11 | [**Round-by-round playbook**](./topics/11-rounds.md) | the decomposition round, take-homes & video walkthroughs, AI-assisted & debugging rounds, the discovery-call simulation |
+| 01 | [**The role & the interview loop**](./topics/01-role.md) | what an AAE/FDE does, the 2026 market, titles, salary & offers, how loops are structured |
+| 02 | [**LLM interview questions**](./topics/02-llm.md) | tokens, embeddings, context windows, sampling, reasoning models & effort, training incl. RLVR |
+| 03 | [**Prompt engineering interview questions**](./topics/03-prompt.md) | few-shot, chain-of-thought, structured outputs and their limits, robust prompting |
+| 04 | [**RAG interview questions**](./topics/04-rag.md) | chunking, embeddings, hybrid search (incl. grep + semantic), reranking, RAG evaluation |
+| 05 | [**AI agents & MCP interview questions**](./topics/05-agents.md) | function calling, ReAct, building MCP servers & skills, harnesses, build vs rent, multi-agent |
+| 06 | [**LLM evaluation (evals) interview questions**](./topics/06-evals.md) | error analysis to saturation, LLM-as-judge validation, agent evals (pass^k) |
+| 07 | [**LLM production interview questions**](./topics/07-prod.md) | cost & caching math, inference economics, reliability, model churn, agent security |
+| 08 | [**Fine-tuning interview questions**](./topics/08-finetune.md) | SFT, LoRA/QLoRA, RLHF vs DPO, RL fine-tuning, when to fine-tune in late 2026 |
+| 09 | [**AI system design interview questions**](./topics/09-sysdesign.md) | a framework plus worked designs, including an insurance-claims agent |
+| 10 | [**FDE behavioral & customer-facing**](./topics/10-fde.md) | ambiguity, STAR, customer scenarios, capability transfer |
+| 11 | [**Round-by-round playbook**](./topics/11-rounds.md) | decomposition, take-homes, AI-assisted rounds, coding-agent fluency, the discovery call |
+| 12 | [**FDE interview process by company**](./topics/12-companies.md) | Anthropic, OpenAI, Palantir, Google/Microsoft/AWS and agent startups, split into official vs reported |
 
-**Plus:** 📋 [**Interview Question Bank**](./interview-questions.md) (real-style questions + strong answers) · ⚡ [**Rapid-Fire Flashcards**](./flashcards.md).
+**Plus:** 📋 [**Interview question bank**](./interview-questions.md) (35 questions with strong answers) · ⚡ [**Flashcards**](./flashcards.md) (91 cards).
+
+## What's new (November 2026)
+
+- **New topic: [company loop guides](./topics/12-companies.md).** Anthropic, OpenAI, Palantir, big tech and startups. Each guide separates official policy from candidate reports and dates every source.
+- **12 new lessons:**
+  - the 2026 FDE market and salary
+  - reasoning models and effort
+  - building MCP servers and Agent Skills
+  - agent harnesses (build vs rent)
+  - inference economics
+  - a worked agentic system design
+  - coding-agent fluency
+  - the five company guides
+- **Rewritten for late 2026:**
+  - the stateless MCP spec (2026-07-28)
+  - sampling parameters disappearing on frontier models
+  - structured-output caveats
+  - prompt-cache write costs and service tiers
+  - OpenAI's retired Assistants API, Agent Builder and Evals
+  - OpenAI closing self-serve fine-tuning
+  - current eval methodology
+  - OWASP updates and attacks on the agent harness
+- **Corrected:**
+  - Sierra's loop (no AI-free round; see [Sierra's own post](./SOURCES.md#company-loops))
+  - OpenAI's FDE loop, which varies by team
+  - "temperature 0 = deterministic"
+  - "LLM APIs are stateless"
+
+Full list: [CHANGELOG.md](./CHANGELOG.md).
 
 ## How to use it
 
-1. **Skim a topic**, then use its **retrieval checks** — recall the answer *before* revealing it. Producing the answer is the learning.
-2. **Drill flashcards** across topics (interleaving beats single-topic cramming).
-3. **Simulate** — go through the question bank out loud, on a timer, then self-grade.
-4. **Practice interactively** in the free trainer → **[website](https://deployprep.vercel.app)**.
+1. **Read a topic**, then answer its **retrieval checks** before revealing the answer. Producing the answer is what makes it stick.
+2. **Mix flashcards** from different topics. Interleaving beats cramming one topic.
+3. **Answer the question bank out loud**, on a timer, then grade yourself.
+4. **Practice interactively** in the free trainer: spaced repetition and timed mock interviews at **[deployprep.vercel.app](https://deployprep.vercel.app)**.
 
-## The two things every AI lab actually tests
+## What interviewers test in 2026
 
-1. **Lead with evals** — "how do you know your AI system actually works?" is *the* differentiator.
-2. **Start with the customer, not the tech** — clarify before you architect.
+1. **Evals first.** "How do you know it works?" is still the question that separates candidates.
+2. **The customer before the tech.** Clarify the problem before you draw any architecture.
+3. **Driving AI, and checking it.** AI-assisted rounds grade how you verify AI output. Meta marks candidates down for using the assistant as a crutch.
 
 ## Contribute a real interview question
 
-The most valuable thing you can add is **a question you were actually asked** — role, company, month/year, and the question. It keeps this current (these loops change fast). See [CONTRIBUTING.md](./CONTRIBUTING.md).
+The most valuable addition is **a question you were actually asked**. Include the role, the company, the month and year, and the question itself. Loops change every quarter, and dated reports keep this guide honest. See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
-## Related searches this handbook answers
+## Cite or reuse
 
-`applied ai engineer interview` · `forward deployed engineer interview questions` · `ai engineer interview questions and answers` · `llm interview questions` · `rag interview questions` · `ai agents interview` · `mcp interview` · `prompt engineering interview` · `llm evaluation interview` · `fine-tuning llm interview` · `ai system design interview` · `openai interview` · `anthropic interview` · `palantir fde interview` · `machine learning engineer interview 2026`
-
-## License
-
-Content under **[CC BY 4.0](./LICENSE)** — use it, share it, adapt it, just credit this repo.
+Content is licensed **[CC BY 4.0](./LICENSE)**: use it, share it and adapt it, with credit to this repo. GitHub's **"Cite this repository"** button uses [CITATION.cff](./CITATION.cff).

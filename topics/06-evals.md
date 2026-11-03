@@ -43,11 +43,12 @@ _~7 min_
 
 The 2026 eval bar moved past 'have a golden set.' The method interviewers now expect (codified by Hamel Husain & Shreya Shankar, and echoed in frontier-lab guidance on agent evals) starts with **error analysis**: you **discover** what to measure by reading real failures — you don't invent metrics in a vacuum.
 
-1. **Collect real traces** (production logs, or realistic pilot traffic) — ~100 to start.
+1. **Collect real traces** (production logs, or realistic pilot traffic). ~100 is a **floor, not a target**: keep reading until new traces stop adding failure categories (**saturation**).
 2. **Open coding**: read each trace and write a free-form note on the **first upstream failure** only (don't log downstream symptoms of the same root cause).
 3. **Axial coding**: cluster the notes into a small **failure taxonomy** ('retrieved wrong policy,' 'ignored refund limit,' 'wrong tone') and **count** them — now you know what actually breaks, and how often.
 4. **Build one binary pass/fail judge per failure mode**, validated against human labels. Fix the biggest bucket, re-run, repeat.
 
+- **Hand-code the first ~30 traces yourself** before letting an LLM help cluster the rest — otherwise you inherit its blind spots.
 - **Trace-to-dataset**: every production failure becomes a permanent regression test. A great eval suite is **harvested from traffic, not authored up front**.
 - **Guardrails ≠ evals**: guardrails are synchronous, deterministic, inline blocking (PII filters, schema checks); evals are async quality **measurement** feeding the improvement loop. Naming this distinction reads senior.
 - As capabilities stabilize, migrate saturated **capability evals** into the always-run **regression suite** that gates deploys.
@@ -96,6 +97,8 @@ _~7 min_
 
 > 💡 **Decompose the metric** — For RAG, evaluate **retrieval and generation separately**. If answers are wrong, you need to know whether retrieval failed or the model ignored good context. One aggregate score hides the cause.
 
+> 💡 **Leaderboards don't transfer** — Public benchmarks churn and saturate — SWE-bench Verified was retired as a headline coding metric in 2026 in favor of harder suites, and the same model's score can swing by tens of points with the harness around it. Benchmarks pick the **shortlist**; **your** eval set, on **your** data, picks the winner — and makes every model migration a measured change.
+
 **◆ Lock it in**
 
 - Build an eval set from **real + edge-case** inputs with expected outputs/rubrics; grow it from every bug.
@@ -125,13 +128,15 @@ For subjective or open-ended output (summaries, chat helpfulness), use **LLM-as-
 - Give the judge a **clear rubric** and ask for a score + justification; consider pairwise comparison (A vs B) over absolute scores.
 - Prefer **binary pass/fail checks per failure mode** over 1–10 scores — humans and models both judge binaries far more consistently; decompose 'quality' into independent checks.
 - Beware judge **biases**: position bias (favoring first/second), length bias (favoring longer), self-preference. Randomize order; validate the judge against human labels on a sample.
-- **Validate the judge like a classifier**: label ~100 examples, hold out a test split, and report **TPR and TNR** (>90% target) — raw '% agreement' hides failure on the rare class.
+- **Validate the judge like a classifier**: label **100–200** examples per judge, split them into train (few-shot examples) / dev / test, and report **TPR and TNR** on the test split (>90% target) — raw '% agreement' hides failure on the rare class. Then use TPR/TNR to **correct** the failure rates the judge reports in production.
+- In CI, prefer **deterministic assertions** wherever code can check the property; reserve LLM judges for what code can't.
 
 #### Offline vs online evaluation
 
 - **Offline**: run your eval set in CI before shipping — catches regressions pre-deploy.
 - **Online**: measure in production — user feedback (👍/👎), A/B tests, task-success signals, human review of samples.
 - **Guardrail metrics**: track cost, latency, refusal rate, and safety alongside quality — a 'better' answer that's 3× slower/costlier may not ship.
+- **Agents**: measure end-to-end task success first (on the final environment state), then step-level diagnostics — where did the first failure happen? Report **pass^k** (all k runs succeed) for the reliability a customer feels, not just pass@k.
 
 > ⚠️ **Don't overfit the eval** — If you tune endlessly against the same 50 cases, you overfit to them. Keep a **held-out set**, refresh cases from real traffic, and watch online metrics — the eval set is a proxy, not the goal.
 
@@ -156,4 +161,4 @@ LLM judges exhibit position and length biases. Randomizing presentation order, c
 
 ---
 
-[◂ Back to the handbook](../README.md) · [▸ Practice this interactively](https://deployprep.com/track/fde)
+[◂ Back to the handbook](../README.md) · [▸ Practice this interactively](https://deployprep.vercel.app/track/fde)
