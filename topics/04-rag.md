@@ -19,14 +19,14 @@ _~6 min_
 
 > 🎯 **RAG vs fine-tuning (classic question)** — **RAG** = give the model new **knowledge/facts** at runtime (cheap to update, attributable). **Fine-tuning** = change the model's **behavior/format/style** or teach a narrow skill. Need current facts? RAG. Need a consistent tone or output format the model won't follow via prompting? Fine-tune. Often you use **both**.
 
-> 💡 **2026 nuance: retrieval moved up the stack** — The single-pass 'chunk → embed → top-k → stuff the prompt' pipeline is no longer the automatic default. In agentic systems, **retrieval is a tool the model calls** when it decides it needs something (**agentic RAG**) — and for navigable corpora like codebases, an agent driving plain **grep/keyword search** famously beat the vector index (Claude Code dropped its embeddings for exactly this). The senior answer names the split: classic RAG still wins for **large, fresh, permissioned** corpora; agentic search wins for structured/navigable ones. Asking **'do we even need a vector DB here?'** is a hire signal.
+> 💡 **2026 nuance: retrieval moved up the stack** — The single-pass 'chunk → embed → top-k → stuff the prompt' pipeline is no longer the automatic default. In agentic systems, **retrieval is a tool the model calls** when it decides it needs something (**agentic RAG**). For navigable corpora like codebases, agents driving plain **grep/keyword search** famously held their own against vector indexes (Claude Code chose agentic search over embeddings) — but measurements since show **semantic search + grep together** beat grep alone (Cursor reported ~12.5% higher accuracy), especially for symptom-style queries ('the login page hangs'). The senior answer is **hybrid, exposed as tools** — and classic RAG for **large, fresh, permissioned**, high-QPS corpora. Asking **'do we even need a vector DB here?'** is still a hire signal; answering 'only grep, always' is not.
 
 **◆ Lock it in**
 
 - RAG injects **relevant data at query time** so the model answers from your sources.
 - It fixes **freshness, private knowledge, and hallucination/attribution** together.
 - RAG adds knowledge; **fine-tuning changes behavior** — different tools, often combined.
-- 2026: **retrieval is a tool in the agent loop**; classic RAG for big/fresh/permissioned corpora, agentic search for navigable ones.
+- 2026: **retrieval is a tool in the agent loop** — give agents **semantic + keyword search together**; classic RAG for big, fresh, permissioned, high-QPS corpora.
 
 > 🧠 **Feynman drill** — A customer wants a bot that answers from their 10,000-page internal wiki, always with citations. RAG or fine-tune? Why?
 
@@ -59,7 +59,7 @@ Every RAG system has two phases. Know them cold — this is a whiteboard staple.
 
 1. **Embed the query** with the same embedding model.
 2. **Search** the vector store for the top-k nearest chunks (often + keyword search = hybrid).
-3. (Optional) **Rerank** the candidates with a cross-encoder for precision.
+3. (Optional) **Rerank** the candidates with a reranker model for precision.
 4. **Assemble** the prompt: instructions + retrieved chunks + user question.
 5. **Generate** the answer, instructing the model to use only the context and **cite** chunks.
 
@@ -96,6 +96,7 @@ _~6 min_
 - **Overlap** (e.g. 10–20%) prevents cutting a sentence/idea across a boundary.
 - **Structure-aware chunking** (by heading, section, or semantic boundary) beats naive fixed-size splits.
 - Attach **metadata** (source, title, section, date, permissions) — you'll need it for filtering and citations.
+- **Contextual chunk enrichment**: prepend a one-line, LLM-written description of the parent document/section to each chunk before embedding and keyword indexing ('This chunk is from the 2026 refund policy, section 4…'). Cheap at index time with prompt caching, and it rescues chunks that are ambiguous out of context.
 
 > 💡 **Practical defaults** — Start ~400–600 tokens per chunk with ~15% overlap, split on semantic/heading boundaries, store rich metadata. Then **measure** and tune — don't guess forever.
 
@@ -128,7 +129,7 @@ _~7 min_
 Naive vector search is a baseline. Production RAG layers on precision techniques:
 
 - **Hybrid search**: combine **semantic** (vector) with **keyword/BM25** search. Vectors catch meaning; keywords catch exact terms, IDs, and rare jargon vectors miss.
-- **Reranking**: retrieve a broad top-50, then a **cross-encoder reranker** scores each against the query and keeps the best 5. Big precision win for modest cost.
+- **Reranking**: retrieve a broad top-50, then a **reranker** (a cross-encoder that reads query + chunk together) re-scores each and keeps the best 5. Big precision win for modest cost. 2026 rerankers also take **instructions** ('prefer the newest policy'), handle long inputs, and return **calibrated scores** — so a fixed threshold ('below X, say I don't know') actually works.
 - **Query rewriting / expansion**: use an LLM to clarify or expand the query, or decompose multi-part questions before retrieval.
 - **Metadata filtering**: restrict search by date, source, or **user permissions** (critical for access control).
 
@@ -161,4 +162,4 @@ Exact identifiers are a classic weakness of pure vector search. Hybrid (semantic
 
 ---
 
-[◂ Back to the handbook](../README.md) · [▸ Practice this interactively](https://deployprep.com/track/fde)
+[◂ Back to the handbook](../README.md) · [▸ Practice this interactively](https://deployprep.vercel.app/track/fde)

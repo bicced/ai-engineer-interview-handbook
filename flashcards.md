@@ -1,6 +1,6 @@
 # Rapid-Fire Flashcards
 
-> 70 spaced-repetition cards. Cover the answer, recall, then check. [◂ Back](./README.md)
+> 91 spaced-repetition cards. Cover the answer, recall, then check. [◂ Back](./README.md)
 
 
 ## The Role: Applied AI & Forward Deployed Engineer
@@ -35,6 +35,12 @@ Research improves the **model itself**. You **apply** an existing model — retr
 Most enterprise AI pilots fail on **integration, not models** — someone must close the last mile. FDE = **product discovery**: 'build the gravel road' with one customer; product paves the highway. Postings grew ~8× YoY.
 </details>
 
+**What did the FDE market look like in late 2026?**
+<details><summary>Answer</summary>
+
+**7,300+ US postings Jan–Sep 2026** vs ~1,200 in all of 2025 (Lightcast); top posters are **consultancies and clouds**; OpenAI's title is **AI Deployment Engineer**; median advertised salary ~$195K, lab bases far higher.
+</details>
+
 
 ## LLM Foundations
 
@@ -59,7 +65,7 @@ A **vector** representing the **meaning** of text. Similar meaning → nearby ve
 **What is the context window and what shares it?**
 <details><summary>Answer</summary>
 
-The max tokens the model can attend to at once. Shared by **system prompt + history + retrieved docs + user message + response**. APIs are stateless.
+The max tokens the model can attend to at once — ~1M on 2026 frontier models. Shared by **system prompt + history + retrieved docs + user message + response (+ thinking tokens)**. The model is stateless; server-side conversation state is storage, not memory.
 </details>
 
 **What is 'lost in the middle'?**
@@ -71,7 +77,7 @@ Models attend best to the **start and end** of a long context; info in the middl
 **Temperature: low vs high?**
 <details><summary>Answer</summary>
 
-**Low (0–0.3)** = focused/deterministic-ish → extraction, classification, code. **High (0.8+)** = creative/varied → brainstorming, writing. Temp 0 ≠ perfectly deterministic.
+**Low (0–0.3)** = focused → extraction, classification, code. **High (0.8+)** = varied → brainstorming. Temp 0 ≠ deterministic. **2026:** many frontier reasoning models reject or ignore temperature — control variance with structured outputs, prompts, effort and validation.
 </details>
 
 **The three model training stages?**
@@ -96,6 +102,24 @@ MoE routes each token to a few **expert** sub-networks, so total parameters are 
 <details><summary>Answer</summary>
 
 The umbrella discipline (prompting is a subset): curate everything in the window via **Write / Select / Compress / Isolate**. Vocab: **attention budget, context rot, compaction, just-in-time retrieval, progressive disclosure**.
+</details>
+
+**What happened to sampling parameters on 2026 frontier models?**
+<details><summary>Answer</summary>
+
+Many reasoning models **reject or ignore** temperature/top-p (Claude Haiku 5.5 errors, GPT-6 Astra dropped them, Gemini 4 ignores them). Variance control moved to **structured outputs, prompts, reasoning effort, validation**; the knobs still matter on open-weight models.
+</details>
+
+**What is test-time compute / reasoning effort?**
+<details><summary>Answer</summary>
+
+Reasoning models spend **thinking tokens** before answering — more buys accuracy on hard tasks, at the cost of latency and output-token spend. You set an **effort level** (low → max) per request; o-series models and fixed thinking budgets are legacy.
+</details>
+
+**What is RLVR?**
+<details><summary>Answer</summary>
+
+**Reinforcement learning with verifiable rewards**: RL on tasks whose outcome can be checked (math answers, passing tests, completed tool tasks). It produced today's reasoning models and is how agentic skills get trained — including RL fine-tuning against graders.
 </details>
 
 
@@ -161,7 +185,7 @@ Combine **semantic (vector)** + **keyword/BM25** search. Vectors catch meaning; 
 **What does a reranker do?**
 <details><summary>Answer</summary>
 
-Takes a broad candidate set (e.g. top-50) and **re-scores** each against the query with a **cross-encoder**, keeping the best few. Big precision win.
+Takes a broad candidate set (e.g. top-50) and **re-scores** each against the query (a cross-encoder reads query + chunk together), keeping the best few. 2026 rerankers also follow **instructions** and return **calibrated scores** you can threshold.
 </details>
 
 **How do you extract from 100k scanned/messy PDFs in 2026?**
@@ -212,7 +236,31 @@ Per-step reliability multiplies: 95% over 5 steps = 0.95^5 ≈ **77%**. More aut
 **Name some agent frameworks (and MCP primitives).**
 <details><summary>Answer</summary>
 
-Frameworks: **LangGraph, OpenAI Agents SDK, Claude Agent SDK, CrewAI, AutoGen, LlamaIndex**. MCP exposes **tools, resources, and prompts** over stdio or streamable-HTTP transports.
+Open SDKs: **OpenAI Agents SDK, Claude Agent SDK, LangGraph, Microsoft Agent Framework** (absorbed AutoGen/Semantic Kernel), **Google ADK**, Pydantic AI. Managed harnesses: OpenAI Agents API, Anthropic Managed Agents, AWS AgentCore. MCP exposes **tools, resources, prompts** over stdio or Streamable HTTP — stateless since the 2026-07-28 spec.
+</details>
+
+**What changed in MCP's 2026-07-28 spec?**
+<details><summary>Answer</summary>
+
+**Stateless**: no initialize handshake or session id; state lives in explicit handles passed as tool args, so plain load balancing works. **input_required** round-trips for mid-call input; **Tasks** as an extension; roots/sampling/logging and HTTP+SSE deprecated; client registration via Client ID Metadata Documents.
+</details>
+
+**What is an Agent Skill?**
+<details><summary>Answer</summary>
+
+A folder with a `SKILL.md` (name, description, instructions) plus optional scripts/resources. The agent sees only the description until relevant, then loads it — **progressive disclosure**. Now an open standard under the Linux Foundation's Agentic AI Foundation.
+</details>
+
+**MCP vs A2A?**
+<details><summary>Answer</summary>
+
+**MCP** = agent ↔ tools and data. **A2A** = agent ↔ other agents across vendors/orgs (agent cards, tasks). Both Agentic AI Foundation projects. Deterministic API → MCP tool; someone else's autonomous agent → A2A.
+</details>
+
+**What is an agent harness — and the build-vs-rent question?**
+<details><summary>Answer</summary>
+
+Everything around the loop: **sandbox, context management (compaction, memory), permissions/approvals, durable sessions, tracing**. Rent (OpenAI Agents API, Anthropic Managed Agents, AgentCore) to ship fast — but check **ZDR/HIPAA eligibility, residency and lock-in** first.
 </details>
 
 
@@ -245,7 +293,7 @@ Strong model scores outputs against a rubric. Biases: **position** (first/second
 **Name some LLM eval / observability tooling.**
 <details><summary>Answer</summary>
 
-Tracing/observability: **LangSmith, Langfuse, Braintrust, Arize Phoenix, Weave**, OpenTelemetry GenAI. Track token usage, latency P50/P95/P99, RAG hit rate, cost, and quality online. Naming these is cheap interview signal.
+Tracing/eval: **LangSmith, Braintrust, Langfuse (now ClickHouse), Arize Phoenix (now Dynatrace), Promptfoo (now OpenAI), W&B Weave**; OpenTelemetry GenAI conventions (still 'development' status). OpenAI's hosted Evals shut down Nov 2026. Track tokens, p50/p95/p99 latency, cost, retrieval hit rate and quality online.
 </details>
 
 **What is error analysis (open/axial coding)?**
@@ -258,6 +306,18 @@ Read ~100 **real traces**, note the **first upstream failure** per trace (open c
 <details><summary>Answer</summary>
 
 Like a classifier: ~100+ human-labeled examples, held-out split, report **TPR and TNR** (>90% target) — not raw % agreement. Prefer **binary pass/fail per failure mode** over 1–10 scores.
+</details>
+
+**How many traces for error analysis?**
+<details><summary>Answer</summary>
+
+~100 is a **floor**: keep reading until new traces stop adding failure categories (**saturation**). Hand-code the first ~30 yourself before LLM-assisted clustering; label 100–200 examples per judge (train/dev/test) to validate it.
+</details>
+
+**Why don't leaderboard scores transfer to your use case?**
+<details><summary>Answer</summary>
+
+Benchmarks saturate and churn (SWE-bench Verified was retired as a headline metric in 2026) and scores swing with the **harness**. Use them to shortlist; **your eval set on your data** picks the winner.
 </details>
 
 
@@ -317,6 +377,30 @@ Willison's frame: exfiltration risk needs all three — **access to private data
 OWASP's 2026 list for **agentic apps**: goal hijack, tool misuse, memory/context poisoning, rogue agents… **Rule of Two**: an unsupervised agent holds at most **two** of {private data, untrusted content, external comms}.
 </details>
 
+**Prompt-caching fine print in 2026?**
+<details><summary>Answer</summary>
+
+Cached reads are **~90–97% cheaper**, but some providers **bill cache writes** (OpenAI 1.25×–2.5× by TTL), caches expire, and any prefix change (reordered tools, a timestamp) busts them. Put stable content first; check cache diagnostics.
+</details>
+
+**How do you protect production from model churn?**
+<details><summary>Answer</summary>
+
+Pin model versions, track deprecation dates (2026 retired the o-series, Gemini 2.5 and older Claude models), and keep an **eval suite that makes migration a measured change**. Watch for automatic rerouting to a new model.
+</details>
+
+**Prefill vs decode?**
+<details><summary>Answer</summary>
+
+**Prefill** processes the prompt in parallel (compute-bound) → sets **TTFT**. **Decode** generates token by token reading the KV cache (memory-bound) → sets **tokens/sec**, and is why output costs ~5× input.
+</details>
+
+**2026 agent attack surfaces beyond prompt injection?**
+<details><summary>Answer</summary>
+
+**Repo/config files** (AGENTS.md, hooks, .env, MCP configs) as untrusted input; **supply chain** (a compromised LLM-gateway package stole keys); **allow-listed egress** used for exfiltration; **memory/compaction** poisoning; provider **tenant isolation** bugs.
+</details>
+
 
 ## Fine-Tuning & Model Adaptation
 
@@ -360,6 +444,12 @@ LoRA **adapters over a frozen 4-bit quantized base** model. Slashes memory so yo
 <details><summary>Answer</summary>
 
 **Open-weight models** (LoRA SFT, and RFT/agent-RL on hosted platforms). Self-serve FT of frontier proprietary models is disappearing (OpenAI sunsetting; Anthropic never offered it). **Context-engineer first**; fine-tune for form/latency/cost — never facts.
+</details>
+
+**Hosted fine-tuning landscape, late 2026?**
+<details><summary>Answer</summary>
+
+**OpenAI is closing self-serve fine-tuning** (no new jobs after Jan 6, 2027); Anthropic doesn't offer it; **Google expanded** (Gemini SFT GA, RL tuning preview). Most applied FT = **open weights**: LoRA SFT + RL against graders (Tinker, Fireworks, Bedrock).
 </details>
 
 
@@ -453,5 +543,44 @@ Read the intended-behavior spec → trace **one request end-to-end** → diff in
 <details><summary>Answer</summary>
 
 **Discover, don't pitch.** Map today's workflow, past (failed) attempts, quantified pain, immovable constraints, the people, and a success number — then summarize and propose a next step. Architecture waits.
+</details>
+
+**What does the converged AI-assisted round look like?**
+<details><summary>Answer</summary>
+
+**An AI assistant + an unfamiliar multi-file repo**: fix a bug → build a feature → optimize (Meta), or comprehend and improve the repo (Google), or narrate the complexity of AI-written code (OpenAI's Codex screen). Graded on **verification**; 'crutch' use is marked down.
+</details>
+
+**Coding-agent fluency — what do interviewers look for?**
+<details><summary>Answer</summary>
+
+**Spec/tests first**, repo instructions (AGENTS.md), plan → small diffs → run → review every diff **including the tests**; parallel agents on isolated branches; and for customer rollouts: bounded workflows, a measured baseline, sandbox + review guardrails, enablement.
+</details>
+
+
+## Company Loop Guides
+
+**Anthropic loop — official vs reported?**
+<details><summary>Answer</summary>
+
+**Official**: no AI unless explicitly permitted; postings ask for MCP servers, sub-agents, agent skills, eval frameworks. **Reported**: escalating-level coding, fictional-customer take-home, discovery-call role-play, eval-harness design round.
+</details>
+
+**OpenAI FDE / AI Deployment Engineer loop?**
+<details><summary>Answer</summary>
+
+**Varies by team**: take-home + recorded walkthrough, an **AI-enabled Codex screen** (narrate the AI's code complexity), or coding + system-design screens; later customer solution design. Know Responses/Agents APIs — Assistants and hosted Evals are gone.
+</details>
+
+**Sierra's loop (from its own post)?**
+<details><summary>Answer</summary>
+
+**System-design** phone screen (replaced no-AI coding) → onsite **Plan → 2-hr Build with any AI tools → Review** (demo, code review, path to production, how AI was used); a piloted round improving a draft PR with coding agents.
+</details>
+
+**Palantir's reported rounds?**
+<details><summary>Answer</summary>
+
+**Decomposition** (vague problem; process + user empathy), **Re-engineering** (bugs + red herrings in a big codebase), **Learning** (unfamiliar library on the spot), behavioral/mission fit. AI reportedly banned. Roles: FDSE vs Deployment Strategist.
 </details>
 

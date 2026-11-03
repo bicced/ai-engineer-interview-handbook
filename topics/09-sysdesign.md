@@ -11,10 +11,10 @@ _~8 min_
 
 'Design an AI assistant for X' is a staple round. Don't jump to a diagram — run a **structured framework** that shows product + engineering + AI judgment.
 
-1. **Clarify requirements**: users, scale (QPS, docs), latency budget, accuracy bar, budget, data sources, offline/online, what 'good' means. **Always start here.**
+1. **Clarify requirements**: users, scale (QPS, docs), latency budget, accuracy bar, budget, data sources, **data-retention / residency rules**, offline/online, what 'good' means. **Always start here.**
 2. **Define success + evals**: how you'll measure quality before you build. Signals matter more than architecture.
 3. **High-level architecture**: ingestion/indexing → retrieval → orchestration (prompt/agent) → model → post-processing/validation → UI. Draw the data flow.
-4. **The AI core**: prompt vs RAG vs agent vs fine-tune; model choice; context strategy; structured output.
+4. **The AI core**: prompt vs RAG vs agent vs fine-tune; model choice (**including access tier and retention terms**); context strategy; structured output; **build vs rent** the agent harness.
 5. **Production concerns**: latency (streaming, caching, routing), cost, reliability (retries/fallbacks), security (injection, PII), observability.
 6. **Feedback loop**: capture user signals + logs → grow eval set → improve. Close the loop.
 7. **Tradeoffs**: state them out loud (build vs buy, quality vs cost vs latency). Seniority = naming tradeoffs, not reciting components.
@@ -84,4 +84,61 @@ Refunds are high-impact and irreversible. Human-in-the-loop is the standard guar
 
 ---
 
-[◂ Back to the handbook](../README.md) · [▸ Practice this interactively](https://deployprep.com/track/fde)
+## Worked example: an agent that triages insurance claims
+_~8 min_
+
+Agentic design now opens many screens: 'how would you build an agent that…, and what happens when it gets stuck?' Prompt: **'Design an agent that triages incoming insurance claims — reads the claim and attachments, checks the policy, requests missing information, and approves low-value claims or routes the rest to an adjuster.'**
+
+#### 1. Clarify & assumptions
+
+- ~5K claims/day, most under $2K; attachments are PDFs and photos; PII and regulated data; anything over $2K needs an adjuster.
+- Goal: handle ~60% end to end with **zero wrongful denials** — so the agent may only **approve or escalate**, never deny.
+
+#### 2. Success & evals
+
+- Primary: decision/routing accuracy against adjuster labels on a held-out set, and **pass^k** on replayed claims (consistency is what the customer feels).
+- Guardrail metrics: cost per claim, p95 time-to-decision, escalation rate, and a 'cited a clause that isn't in the policy' rate from a validated judge.
+
+#### 3. Workflow where you can, agent where you must
+
+- **Deterministic intake**: parse/OCR → extract fields with structured outputs → validate against business rules.
+- **Agent only for the judgment step**: read the policy, decide what's missing, request it, draft the decision with cited clauses.
+- Tools as **MCP servers**: get_policy, get_claim_history, request_documents (templated message only), route_to_adjuster, approve_claim (amount-capped, idempotency key).
+
+#### 4. Harness, safety & stuck agents
+
+- **Harness**: regulated data and retention rules → check ZDR/compliance eligibility; likely an open SDK in the insurer's VPC.
+- **Rule of Two**: the agent reads untrusted attachments and private policy data, so it gets **no free-form outbound channel** — customer contact goes through a templated tool.
+- **The cap lives in the tool**: approve_claim rejects anything over $2K server-side; prompts are not controls.
+- **Stuck-agent handling**: step and spend budgets, loop detection (same tool + same args), and a timeout that escalates to a human with a summary of what was tried.
+
+#### 5. Production
+
+- Low reasoning effort for extraction, higher for the decision step; prompt-cache the policy-rules prefix.
+- Trace every step and tool call (the OpenTelemetry GenAI conventions are still in 'development' status — pick a backend you can export from).
+- Pin model versions; re-run the eval suite before any migration; online, sample decisions for adjuster review and feed disagreements back into the dataset.
+
+> 🎯 **The close** — "I kept the agent's autonomy to the one step that needs judgment, enforced every limit inside the tools, and I'd call it production-ready once pass^k on replayed claims clears the bar and the wrongful-denial test stays at zero."
+
+**◆ Lock it in**
+
+- **Workflow for the predictable parts, agent for the judgment step** — and expose tools as capped, idempotent MCP servers.
+- Enforce limits **in the tools**, apply the **Rule of Two**, and design stuck-agent handling: budgets, loop detection, escalation.
+- Evaluate with **pass^k on replayed cases** plus validated judges; trace everything; eval-gate model migrations.
+
+> 🧠 **Feynman drill** — Design, out loud in three minutes, an agent that handles employee IT access requests. Cover autonomy, tool limits and what happens when it gets stuck.
+
+**Retrieval check**
+
+**Q: Where should the claims agent's $2,000 auto-approval limit be enforced?**
+
+<details><summary>Show answer</summary>
+
+**✓ Inside the approve_claim tool on the server, with a human approval path above the limit.**
+
+Limits on high-impact actions belong in code the model can't talk its way past — the tool itself — with a human path above the cap. Prompts and training data are guidance, not controls; evals detect problems but don't prevent them.
+</details>
+
+---
+
+[◂ Back to the handbook](../README.md) · [▸ Practice this interactively](https://deployprep.vercel.app/track/fde)

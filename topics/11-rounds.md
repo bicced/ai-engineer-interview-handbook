@@ -50,7 +50,7 @@ Jumping to a solution is the #1 documented rejection in this round. The round sc
 ## Take-homes & work trials: evals first, then the video
 _~7 min_
 
-Most AI-native loops now gate on a **build artifact**: OpenAI's ~5-hour build-on-our-APIs with a **recorded video walkthrough**; Anthropic's 3–4-hour app from a **fictional customer brief**; Sierra/LangChain-style build-an-agent-for-a-fictional-client; and paid multi-hour **work trials** inside the company's real codebase. Typical calibration: **2–4 hours of actual work** inside a multi-day window — scope ruthlessly.
+Most AI-native loops now gate on a **build artifact**: OpenAI teams variously use a take-home with a **recorded video walkthrough** (one account: ~5 hours of work over about a week); candidates report Anthropic's app from a **fictional customer brief**; Sierra runs a 2-hour onsite **build with any AI tools**; agent startups hand out build-an-agent-for-a-fictional-client briefs; and some companies run paid multi-hour **work trials** in their real codebase. Some hiring managers now skip puzzles entirely and review a **prototype you already built**. Typical calibration: **2–4 hours of actual work** inside a multi-day window — scope ruthlessly.
 
 #### What graders actually score
 
@@ -94,17 +94,19 @@ Graders score a **running** slice, an **eval harness**, production hygiene, and 
 ## AI-assisted & debugging rounds
 _~7 min_
 
-LLMs made classic take-homes and LeetCode trivially solvable, so loops split two ways: rounds where you're **graded on driving AI well**, and rounds engineered so AI **can't help**. Prep both — and always ask which mode you're in.
+LLMs made classic take-homes and LeetCode trivially solvable, so loops split two ways: rounds where you're **graded on driving AI well**, and rounds engineered so AI **can't help**. By late 2026 roughly half of companies allow AI in interviews in some form (CoderPad), and the dominant AI-assisted format has converged: **an AI assistant + an unfamiliar multi-file repo + a bug to fix, then a feature, then optimization**. Prep both modes — and always ask which one you're in.
 
-#### AI-assisted rounds (Sierra's 'AI-native interview', Meta's AI-enabled round, Canva, Ramp)
+#### AI-assisted rounds (Meta, Google, OpenAI's Codex screen, Sierra, LinkedIn, Shopify)
 
+- Know the variants: Meta's round runs **fix a bug → build the feature → optimize**, scored on problem solving, code quality, **verification** and communication. Google's Gemini round is **code comprehension**: read, debug and improve a repo you didn't write ('AI fluency' — prompting, output validation, debugging). OpenAI's Codex screen asks you to **narrate the time/space complexity of what the AI wrote**.
 - The graded artifact is **your judgment**: prompt with intent (state the plan before asking), **verify aloud** (run/test everything the AI produces), visibly **reject bad suggestions**, and own the architecture yourself.
 - Assume the **AI chat transcript is reviewed** — some platforms hand it to the interviewer. 'Paste task, paste output' reads as unskilled.
 - Some interview AIs are deliberately **weakened** to test whether you catch their mistakes. Treat every suggestion like a junior engineer's PR.
+- **AI interviewers** are here too: platforms now run whole technical screens with an AI asking the follow-ups (HackerRank's Chakra went GA in Oct 2026). Same rules — narrate, verify, own the design.
 
-#### Anti-AI rounds: debugging an unfamiliar codebase
+#### No-AI rounds: debugging an unfamiliar codebase
 
-- Format (Sierra, Scale, Palantir's re-engineering round): a multi-file agent/app plus a spec of **intended behavior**; find and fix several bugs, no AI tools, code must run.
+- Format (Palantir's re-engineering round, Scale, many proctored screens): a multi-file agent/app plus a spec of **intended behavior**; find and fix several bugs, no AI tools, code must run. (Sierra's piloted version has you improve a colleague's draft PR **with** coding agents — check which mode you're in.)
 - Method: read the spec first → trace **one request end-to-end** → diff intent vs. behavior → instrument (prints/logs) at the seam → fix, **run to prove it**, then hunt the next.
 - Beware **red herrings** — ugly-but-working code is planted on purpose. Fix behavior, not style.
 
@@ -131,10 +133,55 @@ These rounds grade **verification and judgment**, not raw output. Blind pasting 
 
 ---
 
+## Coding-agent fluency: the new minimum qualification
+_~7 min_
+
+Late-2026 postings list 'using coding agents to develop code and tests to specification' as a **minimum** qualification, OpenAI hires AI Deployment Engineers specifically to roll Codex out at customers, and AI-assisted rounds grade how you drive an agent. Fluency means engineering discipline around the agent — not prompt tricks.
+
+#### How senior engineers drive coding agents
+
+- **Spec and tests first**: write (or have the agent draft, then review) the tests that define done; the agent iterates against them.
+- **Repo instructions**: an `AGENTS.md` / `CLAUDE.md` with build commands, conventions and no-go zones; skills for repeated procedures.
+- **Plan, then small diffs**: ask for a plan before code, implement in slices, run everything, read every diff like a junior's PR.
+- **Parallelize safely**: several agents on isolated branches or worktrees for independent tasks; one owner merges.
+- **Verify, don't trust**: check complexity and edge cases; watch for invented APIs and silently weakened tests.
+
+#### Rolling coding agents out across a customer's org
+
+- **Pick bounded, measurable workflows**: test generation, migrations, bug triage, dependency upgrades.
+- **Baseline first**: cycle time, PR throughput, escaped defects — then measure the same after.
+- **Guardrails**: sandboxed execution, no production secrets in the agent's environment, human review on merge, permission policies — and treat repo files and issue text as untrusted input (2026 incidents turned both into attack paths).
+- **Enablement**: shared AGENTS.md conventions, skills for the org's procedures, office hours — capability transfer, not a one-off demo.
+
+> ⚠️ **The quiet failure: weakened tests** — Agents under pressure to make tests pass sometimes edit the test instead of the code. Diff the tests too, and make 'don't modify tests without asking' an explicit rule.
+
+> 🎯 **Say this** — "I write the acceptance tests first, give the agent the repo's conventions in AGENTS.md, have it propose a plan before touching code, and review every diff — including the tests — before anything merges."
+
+**◆ Lock it in**
+
+- Coding-agent fluency is now a **baseline qualification**: spec/tests first, repo instructions, plan → small diffs → verify.
+- Rolling agents out at a customer = **bounded workflows, a measured baseline, sandbox + review guardrails, enablement**.
+- Always **diff the tests** — weakened tests are the classic silent agent failure.
+
+> 🧠 **Feynman drill** — A customer's VP of Engineering asks how you'd roll coding agents out to 200 developers safely. Give your 90-day plan.
+
+**Retrieval check**
+
+**Q: In an AI-assisted round, the agent's fix makes every test pass. What do you check first?**
+
+<details><summary>Show answer</summary>
+
+**✓ Whether it modified or weakened the tests — then the diff's logic, complexity and edge cases.**
+
+Agents can 'pass' by editing tests. Verifying the tests are intact, then reviewing logic, complexity and edge cases, is exactly the verification skill these rounds grade.
+</details>
+
+---
+
 ## The discovery-call simulation
 _~7 min_
 
-A newer round — heaviest at Anthropic, spreading fast — puts you in a **role-play discovery call**: the interviewer plays a VP at a fictional enterprise; you have 30–60 minutes. Candidate reports call it one of the **strongest offer predictors** in the loop, and the failure mode is universal: **pitching instead of discovering**.
+A newer round — most often reported at Anthropic and agent startups — puts you in a **role-play discovery call**: the interviewer plays a VP at a fictional enterprise; you have 30–60 minutes. Candidate reports (not company-confirmed) call it one of the **strongest offer predictors** in the loop, and the failure mode is universal: **pitching instead of discovering**.
 
 #### Run it like a real discovery call
 
@@ -173,4 +220,4 @@ The round tests discovery discipline. You don't stonewall — you earn the desig
 
 ---
 
-[◂ Back to the handbook](../README.md) · [▸ Practice this interactively](https://deployprep.com/track/fde)
+[◂ Back to the handbook](../README.md) · [▸ Practice this interactively](https://deployprep.vercel.app/track/fde)
